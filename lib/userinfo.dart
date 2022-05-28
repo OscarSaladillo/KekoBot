@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:chat_bot/base64Decoder/decoder.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UserInfo extends StatefulWidget {
@@ -14,9 +19,11 @@ class _UserInfoState extends State<UserInfo> {
   final _formKey = GlobalKey<FormState>();
   bool allowEnter = true;
   FirebaseAuth auth = FirebaseAuth.instance;
-  TextEditingController nameCtrl = TextEditingController();
-  TextEditingController lastNameCtrl = TextEditingController();
+  TextEditingController usernameCtrl = TextEditingController();
+  TextEditingController emailCtrl = TextEditingController();
   TextEditingController nacionalityCtrl = TextEditingController();
+  String? avatar;
+  ImageProvider? image;
   String? userColor;
   String emailError = "Debe ser un email valido";
   List<String> colors = [
@@ -66,9 +73,9 @@ class _UserInfoState extends State<UserInfo> {
       if (_formKey.currentState!.validate()) {
         docRef!.update({
           "color": userColor,
-          "lastnames": lastNameCtrl.text,
+          "lastnames": emailCtrl.text,
           "nacionality": nacionalityCtrl.text,
-          "name": nameCtrl.text
+          "name": usernameCtrl.text
         });
         return true;
       } else {
@@ -101,11 +108,11 @@ class _UserInfoState extends State<UserInfo> {
     doc = querySnap!.docs[0];
     docRef = doc!.reference;
     docData = doc!.data() as Map?;
-    nameCtrl.text = docData!["name"];
-    lastNameCtrl.text = docData!["lastnames"];
-    nacionalityCtrl.text = docData!["nacionality"];
+    usernameCtrl.text = docData!["username"];
+    emailCtrl.text = docData!["email"];
     setState(() {
-      userColor = docData!["color"];
+      avatar = docData!["avatar"];
+      image = MemoryImage(convertBase64Image(avatar!));
     });
   }
 
@@ -133,17 +140,38 @@ class _UserInfoState extends State<UserInfo> {
           )
         ],
       ),
-      body: (userColor != null)
+      body: (avatar != null)
           ? SingleChildScrollView(
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 20),
-                height: 400,
+                height: MediaQuery.of(context).size.height - 80,
                 child: Form(
                     key: _formKey,
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          TextButton(
+                              onPressed: () async {
+                                FilePickerResult? result =
+                                    await FilePicker.platform.pickFiles();
+                                if (result != null) {
+                                  setState(() {
+                                    image = FileImage(File(
+                                        result.files.single.path as String));
+                                  });
+                                  Uint8List imagebytes = await File(
+                                          result.files.single.path as String)
+                                      .readAsBytes(); //convert to bytes
+                                  String base64string = base64.encode(
+                                      imagebytes); //convert bytes to base64 string
+                                  print(base64string);
+                                }
+                              },
+                              child: CircleAvatar(
+                                backgroundImage: image!,
+                                radius: 150,
+                              )),
                           SizedBox(
                               width: MediaQuery.of(context).size.width,
                               child: Row(
@@ -155,10 +183,10 @@ class _UserInfoState extends State<UserInfo> {
                                       width: MediaQuery.of(context).size.width /
                                           2.7,
                                       child: TextFormField(
-                                          controller: nameCtrl,
+                                          controller: usernameCtrl,
                                           validator: (name) {
                                             if (name!.isEmpty) {
-                                              return 'El nombre no debe estar vacio';
+                                              return 'El nickname no debe estar vacio';
                                             }
                                             return null;
                                           },
@@ -167,13 +195,13 @@ class _UserInfoState extends State<UserInfo> {
                                                 borderSide: BorderSide(
                                                     color: Colors.black,
                                                     width: 5)),
-                                            labelText: 'Nombre',
+                                            labelText: 'Usuario',
                                           ))),
                                   SizedBox(
                                       width: MediaQuery.of(context).size.width /
                                           2.7,
                                       child: TextFormField(
-                                          controller: lastNameCtrl,
+                                          controller: emailCtrl,
                                           validator: (lastName) {
                                             if (lastName!.isEmpty) {
                                               return 'El apellido no debe estar vacio';
@@ -189,27 +217,6 @@ class _UserInfoState extends State<UserInfo> {
                                           )))
                                 ],
                               )),
-                          const Text("Color de los mensajes"),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: colorContainer()),
-                          Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              child: TextFormField(
-                                  controller: nacionalityCtrl,
-                                  validator: (nacionality) {
-                                    if (nacionality!.isEmpty) {
-                                      return 'La nacionalidad no debe estar vacia';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.black, width: 5)),
-                                    labelText: 'Nacionalidad',
-                                  ))),
                           Container(
                             child: ElevatedButton(
                                 onPressed: () async {

@@ -180,8 +180,8 @@ class _ChatState extends State<Chat> {
                     },
                     child: Image.asset(
                       "assets/images/send.png",
-                      height: 50,
-                      width: 50,
+                      height: 40,
+                      width: 40,
                     ),
                   ),
                   enabledBorder: const OutlineInputBorder(

@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:provider/provider.dart';
+
+import 'Providers/form_provider.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -12,9 +14,8 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController nameCtrl = TextEditingController();
+  TextEditingController emailCtrl = TextEditingController();
   TextEditingController passwordCtrl = TextEditingController();
-  String errorlogin = "";
 
   Future<bool> checkLogin(String email, String password) async {
     try {
@@ -50,16 +51,18 @@ class _LoginState extends State<Login> {
                     child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          Text(
-                            errorlogin,
-                            style: const TextStyle(
-                                color: Colors.red, fontSize: 20),
+                          Consumer<FormProvider>(
+                            builder: (context, formInfo, child) => Text(
+                              formInfo.errorLogin,
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 20),
+                            ),
                           ),
                           Container(
                               margin:
                                   const EdgeInsets.symmetric(horizontal: 20),
                               child: TextFormField(
-                                  controller: nameCtrl,
+                                  controller: emailCtrl,
                                   validator: (email) {
                                     if (!EmailValidator.validate(email!)) {
                                       return 'Debe ser un email valido';
@@ -74,54 +77,72 @@ class _LoginState extends State<Login> {
                                   ))),
                           Container(
                             margin: const EdgeInsets.symmetric(horizontal: 20),
-                            child: TextFormField(
-                                controller: passwordCtrl,
-                                validator: (password) {
-                                  if (password!.length > 10) {
-                                    return 'Máximo 10 caracteres';
-                                  } else if (password.length < 3) {
-                                    return 'Mínimo 3 caracteres';
-                                  }
-                                  return null;
-                                },
-                                obscureText: true,
-                                enableSuggestions: false,
-                                autocorrect: false,
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.black, width: 5)),
-                                  labelText: 'Contraseña',
-                                )),
+                            child: Consumer<FormProvider>(
+                                builder: (context, formInfo, child) =>
+                                    TextFormField(
+                                      controller: passwordCtrl,
+                                      validator: (password) {
+                                        if (password!.isEmpty) {
+                                          return 'Este campo no puede estar vacio';
+                                        }
+                                        return null;
+                                      },
+                                      obscureText:
+                                          formInfo.loginPasswordVisible,
+                                      enableSuggestions: false,
+                                      autocorrect: false,
+                                      decoration: InputDecoration(
+                                          border: const OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.black,
+                                                  width: 5)),
+                                          labelText: 'Contraseña',
+                                          suffixIcon: IconButton(
+                                            icon: Icon(
+                                              !formInfo.loginPasswordVisible
+                                                  ? Icons.visibility
+                                                  : Icons.visibility_off,
+                                              color: Theme.of(context)
+                                                  .primaryColorDark,
+                                            ),
+                                            onPressed: () {
+                                              formInfo
+                                                  .changeLoginPasswordVisible();
+                                            },
+                                          )),
+                                    )),
                           ),
                           Container(
                             child: ElevatedButton(
                                 onPressed: () async {
                                   bool allowEnter = await checkLogin(
-                                      nameCtrl.text, passwordCtrl.text);
+                                      emailCtrl.text, passwordCtrl.text);
                                   if (_formKey.currentState!.validate() &&
                                       allowEnter) {
                                     Navigator.pushReplacementNamed(
-                                        context, "/chat");
+                                        context, "/chatList");
                                   } //Esta condicion la pusimos por si los datos sintacticamente
                                   // estan bien, pero no tenemos registrados esos datos
                                   // ya que en caso de estar sintacticamente mal, los textfield hacen su trabajo
                                   // con el input decoration y seria redundante poner else en ves de else if
                                   else if (_formKey.currentState!.validate() &&
                                       !allowEnter) {
-                                    setState(() {
-                                      errorlogin =
-                                          "el email o la contraseña no son correctas";
-                                    });
+                                    Provider.of<FormProvider>(context,
+                                            listen: false)
+                                        .changeErrorLogin(
+                                            "el email o la contraseña no son correctas");
                                   } //Esta condicion es para borrar el mensaje del errorLogin y que
                                   //no repita al usuario el mensaje ya que puede molestarlo
                                   else {
-                                    setState(() {
-                                      errorlogin = "";
-                                    });
+                                    Provider.of<FormProvider>(context,
+                                            listen: false)
+                                        .changeErrorLogin("");
                                   }
                                 },
-                                child: const Text('Acceder'),
+                                child: const Text(
+                                  'Iniciar sesión',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                                 style: ButtonStyle(
                                     padding:
                                         MaterialStateProperty.all<EdgeInsets>(
