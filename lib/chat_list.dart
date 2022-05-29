@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:chat_bot/base64Decoder/decoder.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -60,18 +59,23 @@ class _ChatListState extends State<ChatList> {
               child: CircularProgressIndicator(),
             );
           } else {
-            return ListView(
-              children: snapshot.data?.docs.map((document) {
-                ChatModel chat =
-                    ChatModel.fromJson(document.data(), document.id);
-                return TextButton(
-                    onPressed: () {},
-                    child: ListTile(
-                      leading: Image.memory(convertBase64Image(chat.avatar)),
-                      title: Text(chat.name),
-                    ));
-              }).toList() as List<Widget>,
-            );
+            List<Widget> listTiles = snapshot.data?.docs.map((document) {
+              ChatModel chat = ChatModel.fromJson(document.data(), document.id);
+              return TextButton(
+                  onPressed: () {},
+                  child: ListTile(
+                    leading: Image.memory(base64.decode(chat.avatar)),
+                    title: Text(chat.name),
+                  ));
+            }).toList() as List<Widget>;
+            return ListView.separated(
+                itemBuilder: (context, index) {
+                  return listTiles[index];
+                },
+                separatorBuilder: (context, index) {
+                  return const Divider();
+                },
+                itemCount: listTiles.length);
           }
         },
       ),

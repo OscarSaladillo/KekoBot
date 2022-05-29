@@ -19,7 +19,8 @@ void main() {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF128C7E))),
+            scaffoldBackgroundColor: const Color(0xFFDEE3FF),
+            appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF000E7A))),
         routes: {
           '/': (context) => const Login(),
           '/register': (context) => const Register(),
