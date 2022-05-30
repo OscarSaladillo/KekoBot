@@ -114,8 +114,8 @@ class _LoginState extends State<Login> {
                                               width: 2.0,
                                             ),
                                           ),
-                                          labelStyle:
-                                              const TextStyle(color: Colors.white),
+                                          labelStyle: const TextStyle(
+                                              color: Colors.white),
                                           labelText: 'Contraseña',
                                           suffixIcon: IconButton(
                                             icon: Icon(
