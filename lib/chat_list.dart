@@ -1,12 +1,13 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
+import 'package:chat_bot/Providers/chat_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'Models/chat_model.dart';
+import 'Providers/avatar_provider.dart';
 
 class ChatList extends StatefulWidget {
   const ChatList({Key? key}) : super(key: key);
@@ -35,6 +36,8 @@ class _ChatListState extends State<ChatList> {
         actions: [
           TextButton(
             onPressed: () {
+              Provider.of<AvatarProvider>(context, listen: false)
+                  .setAvatar(null);
               Navigator.pushNamed(context, "/userInfo");
             },
             child: Container(
@@ -54,7 +57,6 @@ class _ChatListState extends State<ChatList> {
         builder: (BuildContext context,
             AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
           if (!snapshot.hasData) {
-            // ERROR
             return const Center(
               child: CircularProgressIndicator(),
             );
@@ -62,7 +64,11 @@ class _ChatListState extends State<ChatList> {
             List<Widget> listTiles = snapshot.data?.docs.map((document) {
               ChatModel chat = ChatModel.fromJson(document.data(), document.id);
               return TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Provider.of<ChatProvider>(context, listen: false)
+                        .setSelectedChat(chat);
+                    Navigator.pushNamed(context, "/chat");
+                  },
                   child: ListTile(
                     leading: Image.memory(base64.decode(chat.avatar)),
                     title: Text(chat.name),

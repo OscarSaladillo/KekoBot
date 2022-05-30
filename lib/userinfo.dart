@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:chat_bot/Providers/avatar_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class UserInfo extends StatefulWidget {
   const UserInfo({Key? key}) : super(key: key);
@@ -36,35 +38,6 @@ class _UserInfoState extends State<UserInfo> {
   QueryDocumentSnapshot? doc;
   DocumentReference? docRef;
   Map? docData;
-
-  List<Widget> colorContainer() {
-    List<Widget> containers = [];
-    for (int i = 0; i < colors.length; i++) {
-      containers.add(TextButton(
-        onPressed: () {
-          setState(() {
-            userColor = colors[i];
-          });
-        },
-        child: Container(
-          padding: const EdgeInsets.all(5),
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-              border: Border.all(),
-              borderRadius: BorderRadius.circular(20),
-              color: Color(int.parse(colors[i]))),
-          child: (userColor == colors[i])
-              ? const Align(
-                  alignment: Alignment.topRight,
-                  child: Icon(Icons.verified, color: Color(0xFF128C7E)),
-                )
-              : null,
-        ),
-      ));
-    }
-    return containers;
-  }
 
   Future<bool> saveChanges() async {
     try {
@@ -109,137 +82,146 @@ class _UserInfoState extends State<UserInfo> {
     docData = doc!.data() as Map?;
     usernameCtrl.text = docData!["username"];
     descriptionCtrl.text = docData!["description"];
-    setState(() {
-      avatar = docData!["avatar"];
-      image = MemoryImage(base64.decode(avatar!));
-    });
+    Provider.of<AvatarProvider>(context, listen: false)
+        .setAvatar(docData!["avatar"]);
   }
 
   @override
   void initState() {
     // TODO: implement initState
-    getUserData();
+    getUserData().then((value) {
+      Provider.of<AvatarProvider>(context, listen: false).setImage(MemoryImage(
+          base64.decode(
+              Provider.of<AvatarProvider>(context, listen: false).avatar!)));
+      base64Avatar =
+          Provider.of<AvatarProvider>(context, listen: false).avatar!;
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Informacion del usuario"),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              await manageChanges();
-            },
-            child: const Icon(
-              Icons.save,
-              color: Colors.white,
-            ),
-          )
-        ],
-      ),
-      body: (avatar != null)
-          ? SingleChildScrollView(
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 20),
-                height: MediaQuery.of(context).size.height - 80,
-                width: MediaQuery.of(context).size.width,
-                child: Form(
-                    key: _formKey,
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          TextButton(
-                              onPressed: () async {
-                                Uint8List? imageBytes;
-                                FilePickerResult? result = await FilePicker
-                                    .platform
-                                    .pickFiles(type: FileType.image);
-                                if (result != null) {
-                                  if (kIsWeb) {
-                                    imageBytes =
-                                        result.files.first.bytes as Uint8List;
-                                    setState(() {
-                                      image = MemoryImage(imageBytes!);
-                                    });
-                                  } else {
-                                    imageBytes = await File(
-                                            result.files.single.path as String)
-                                        .readAsBytes();
-                                    setState(() {
-                                      image = MemoryImage(imageBytes!);
-                                    });
-                                  }
-                                  //print(result.files.single.bytes);//convert to bytes
-                                  base64Avatar = base64.encode(imageBytes);
-                                }
-                              },
-                              child: CircleAvatar(
-                                backgroundImage: image!,
-                                radius: 150,
-                                child: Image.asset(
-                                  "assets/images/modifyAvatar.png",
-                                  width: 75,
-                                ),
-                              )),
-                          SizedBox(
-                              width: MediaQuery.of(context).size.width / 1.5,
-                              child: TextFormField(
-                                  controller: usernameCtrl,
-                                  validator: (name) {
-                                    if (name!.isEmpty) {
-                                      return 'El nickname no debe estar vacio';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.black, width: 5)),
-                                    labelText: 'Usuario',
-                                  ))),
-                          SizedBox(
-                              width: MediaQuery.of(context).size.width / 1.5,
-                              child: TextFormField(
-                                  maxLines: 4,
-                                  controller: descriptionCtrl,
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.black, width: 5)),
-                                    labelText: 'Descripcion',
-                                  ))),
-                          Container(
-                            child: ElevatedButton(
-                                onPressed: () async {
-                                  await manageChanges();
-                                },
-                                child: const Text('Guardar cambios'),
-                                style: ButtonStyle(
-                                    padding:
-                                        MaterialStateProperty.all<EdgeInsets>(
-                                            const EdgeInsets.symmetric(
-                                                vertical: 20, horizontal: 50)),
-                                    backgroundColor: MaterialStateProperty.all(
-                                        Colors.blue[900]),
-                                    shape: MaterialStateProperty.all(
-                                        RoundedRectangleBorder(
-                                            side: const BorderSide(
-                                                color: Color(0xFF000000),
-                                                width: 1,
-                                                style: BorderStyle.solid),
-                                            borderRadius:
-                                                BorderRadius.circular(30.0))))),
-                            margin: const EdgeInsets.symmetric(vertical: 10),
-                          )
-                        ])),
+        appBar: AppBar(
+          title: const Text("Perfil"),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                await manageChanges();
+              },
+              child: const Icon(
+                Icons.save,
+                color: Colors.white,
               ),
             )
-          : const Center(
-              child: CircularProgressIndicator(),
-            ),
-    );
+          ],
+        ),
+        body: Consumer<AvatarProvider>(
+          builder: (context, avatar, child) => (avatar.avatar != null)
+              ? SingleChildScrollView(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 20),
+                    height: MediaQuery.of(context).size.height - 80,
+                    width: MediaQuery.of(context).size.width,
+                    child: Form(
+                        key: _formKey,
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              TextButton(
+                                  onPressed: () async {
+                                    Uint8List? imageBytes;
+                                    FilePickerResult? result = await FilePicker
+                                        .platform
+                                        .pickFiles(type: FileType.image);
+                                    if (result != null) {
+                                      if (kIsWeb) {
+                                        imageBytes = result.files.first.bytes
+                                            as Uint8List;
+                                        avatar
+                                            .setImage(MemoryImage(imageBytes));
+                                      } else {
+                                        imageBytes = await File(result
+                                                .files.single.path as String)
+                                            .readAsBytes();
+                                        avatar
+                                            .setImage(MemoryImage(imageBytes));
+                                      }
+                                      //print(result.files.single.bytes);//convert to bytes
+                                      base64Avatar = base64.encode(imageBytes);
+                                    }
+                                  },
+                                  child: CircleAvatar(
+                                    backgroundImage: avatar.image,
+                                    radius: 150,
+                                    child: Image.asset(
+                                      "assets/images/modifyAvatar.png",
+                                      width: 75,
+                                    ),
+                                  )),
+                              SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width / 1.5,
+                                  child: TextFormField(
+                                      controller: usernameCtrl,
+                                      validator: (name) {
+                                        if (name!.isEmpty) {
+                                          return 'El nickname no debe estar vacio';
+                                        }
+                                        return null;
+                                      },
+                                      decoration: const InputDecoration(
+                                        border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black, width: 5)),
+                                        labelText: 'Usuario',
+                                      ))),
+                              SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width / 1.5,
+                                  child: TextFormField(
+                                      maxLines: 4,
+                                      controller: descriptionCtrl,
+                                      decoration: const InputDecoration(
+                                        border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.black, width: 5)),
+                                        labelText: 'Descripcion',
+                                      ))),
+                              Container(
+                                child: ElevatedButton(
+                                    onPressed: () async {
+                                      await manageChanges();
+                                    },
+                                    child: const Text('Guardar cambios'),
+                                    style: ButtonStyle(
+                                        padding:
+                                            MaterialStateProperty.all<EdgeInsets>(
+                                                const EdgeInsets.symmetric(
+                                                    vertical: 20,
+                                                    horizontal: 50)),
+                                        backgroundColor:
+                                            MaterialStateProperty.all(
+                                                Colors.blue[900]),
+                                        shape: MaterialStateProperty.all(
+                                            RoundedRectangleBorder(
+                                                side: const BorderSide(
+                                                    color: Color(0xFF000000),
+                                                    width: 1,
+                                                    style: BorderStyle.solid),
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        30.0))))),
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                              )
+                            ])),
+                  ),
+                )
+              : const Center(
+                  child: CircularProgressIndicator(),
+                ),
+        ));
   }
 }

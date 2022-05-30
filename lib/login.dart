@@ -70,9 +70,18 @@ class _LoginState extends State<Login> {
                                     return null;
                                   },
                                   decoration: const InputDecoration(
-                                    border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.black, width: 5)),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.white,
+                                        width: 2.0,
+                                      ),
+                                    ),
+                                    labelStyle: TextStyle(color: Colors.white),
                                     labelText: 'Email',
                                   ))),
                           Container(
@@ -92,18 +101,28 @@ class _LoginState extends State<Login> {
                                       enableSuggestions: false,
                                       autocorrect: false,
                                       decoration: InputDecoration(
-                                          border: const OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.black,
-                                                  width: 5)),
+                                          focusedBorder:
+                                              const OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          enabledBorder:
+                                              const OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                              color: Colors.white,
+                                              width: 2.0,
+                                            ),
+                                          ),
+                                          labelStyle:
+                                              const TextStyle(color: Colors.white),
                                           labelText: 'Contraseña',
                                           suffixIcon: IconButton(
                                             icon: Icon(
                                               !formInfo.loginPasswordVisible
                                                   ? Icons.visibility
                                                   : Icons.visibility_off,
-                                              color: Theme.of(context)
-                                                  .primaryColorDark,
+                                              color: Colors.white,
                                             ),
                                             onPressed: () {
                                               formInfo

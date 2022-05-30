@@ -5,6 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'Providers/avatar_provider.dart';
+import 'Providers/chat_provider.dart';
 import 'Providers/form_provider.dart';
 import 'chat.dart';
 import 'firebase_options.dart';
@@ -15,18 +17,23 @@ void main() {
   Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   ).then((value) => runApp(MultiProvider(
-      providers: [ChangeNotifierProvider(create: (context) => FormProvider())],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            scaffoldBackgroundColor: const Color(0xFFDEE3FF),
-            appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF000E7A))),
-        routes: {
-          '/': (context) => const Login(),
-          '/register': (context) => const Register(),
-          '/chatList': (context) => const ChatList(),
-          '/chat': (context) => const Chat(),
-          '/userInfo': (context) => const UserInfo(),
-        },
-      ))));
+          providers: [
+            ChangeNotifierProvider(create: (context) => FormProvider()),
+            ChangeNotifierProvider(create: (context) => ChatProvider()),
+            ChangeNotifierProvider(create: (context) => AvatarProvider())
+          ],
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+                scaffoldBackgroundColor: const Color(0xFF205338),
+                appBarTheme:
+                    const AppBarTheme(backgroundColor: Color(0xFF680000))),
+            routes: {
+              '/': (context) => const Login(),
+              '/register': (context) => const Register(),
+              '/chatList': (context) => const ChatList(),
+              '/chat': (context) => const Chat(),
+              '/userInfo': (context) => const UserInfo(),
+            },
+          ))));
 }
