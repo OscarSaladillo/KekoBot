@@ -2,7 +2,7 @@ import 'package:chat_bot/Models/message_model.dart';
 import 'package:flutter/material.dart';
 
 Container getMessageContainer(
-    String currentEmail, MessageModel message, double width) {
+    String currentEmail, MessageModel message, String username, double width) {
   return Container(
       padding: const EdgeInsets.all(10),
       child: Align(
@@ -14,17 +14,18 @@ Container getMessageContainer(
             width: width,
             decoration: BoxDecoration(
                 color: (currentEmail == message.email)
-                    ? Colors.blueAccent[100]
-                    : const Color(0xFFFFFFFF),
+                    ? const Color(0xFF680000)
+                    : const Color(0xFF000000),
                 borderRadius: BorderRadius.circular(20)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(message.email,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(username,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white)),
                 Text(
                   message.text,
-                  style: const TextStyle(fontSize: 20),
+                  style: const TextStyle(fontSize: 20, color: Colors.white),
                 )
               ],
             )),

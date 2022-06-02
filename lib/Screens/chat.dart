@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:chat_bot/Models/message_model.dart';
 import 'package:chat_bot/Providers/chat_provider.dart';
@@ -7,7 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'message.dart';
+import '../Widgets/message.dart';
 
 class Chat extends StatefulWidget {
   const Chat({Key? key}) : super(key: key);
@@ -21,46 +22,18 @@ class _ChatState extends State<Chat> {
   List<String> usersCount = [];
   TextEditingController messageCtrl = TextEditingController();
   FirebaseAuth auth = FirebaseAuth.instance;
+  Map<String, String> userCache = {};
+  Uint8List? memoryImage;
   ScrollController scrollController = ScrollController();
   Widget? button;
 
-  Future<void> listenChanges() async {
-    FirebaseFirestore.instance
-        .collection("messages")
-        .where("chatRoom",
-            isEqualTo: Provider.of<ChatProvider>(context, listen: false)
-                .selectedChat
-                ?.id)
-        .orderBy("date")
-        .snapshots()
-        .listen((result) {
-      setState(() {
-        list = [];
-      });
-      for (var result in result.docs) {
-        setState(() {
-          list.add(result.data());
-        });
-        //Aqui obtendremos los usuarios que dejaron al menos un mensaje en el chat
-        //Esa es la unica razon por la que hicimos una lista exclusiva en ves del mapa del userColor
-        //Porque se puede dar el caso de que el usuario no haya dejado un mensaje
-        if (!usersCount.contains(result.data()["email"])) {
-          setState(() {
-            usersCount.add(result.data()["email"] as String);
-          });
-        }
-      }
-    });
-  }
-
   scrollListener() {
-    if (scrollController.offset <=
-        scrollController.position.maxScrollExtent - 100) {
+    if (scrollController.offset >= 10) {
       setState(() {
         button = FloatingActionButton(
           backgroundColor: Colors.white,
           onPressed: () {
-            scrollController.jumpTo(scrollController.position.maxScrollExtent);
+            scrollController.jumpTo(0);
           },
           child: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
         );
@@ -85,16 +58,6 @@ class _ChatState extends State<Chat> {
   @override
   void initState() {
     // TODO: implement initState
-    //listenChanges();
-    //La razon por la que decidi poner un boton al inicio del chat, fue por si el usuario
-    // queria ver los mensajes del inicio y si no queria, que le de al boton
-    button = FloatingActionButton(
-      backgroundColor: Colors.white,
-      onPressed: () {
-        scrollController.jumpTo(scrollController.position.maxScrollExtent);
-      },
-      child: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
-    );
     super.initState();
   }
 
@@ -106,44 +69,40 @@ class _ChatState extends State<Chat> {
         margin: const EdgeInsets.only(bottom: 100),
         child: button,
       ),
-      backgroundColor: Colors.grey[300],
       appBar: AppBar(
-        leading: TextButton(
-          onPressed: () {
-            Navigator.pushNamed(context, "/userInfo");
+        title: Consumer<ChatProvider>(
+          builder: (context, chatInfo, child) {
+            return Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  backgroundImage: MemoryImage(chatInfo.selectedChat!.avatar),
+                ),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(chatInfo.selectedChat!.name),
+                )
+              ],
+            );
           },
-          child: Container(
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.white),
-                borderRadius: BorderRadius.circular(20)),
-            child: Image.memory(base64.decode(
-                Provider.of<ChatProvider>(context, listen: false)
-                    .selectedChat!
-                    .avatar)),
-          ),
-        ),
-        title: Column(
-          children: [
-            Text(Provider.of<ChatProvider>(context, listen: false)
-                .selectedChat!
-                .name),
-            Text(
-              "${Provider.of<ChatProvider>(context, listen: false).selectedChat!.users.length} Usuarios",
-              style: const TextStyle(fontSize: 16),
-            )
-          ],
         ),
         centerTitle: true,
         actions: [
-          TextButton(
-              onPressed: () async {
-                await auth.signOut();
-                Navigator.pushReplacementNamed(context, "/");
-              },
-              child: const Icon(
-                Icons.close,
-                color: Colors.white,
-              ))
+          Consumer<ChatProvider>(builder: (context, chatInfo, child) {
+            if (!chatInfo.selectedChat!.isMP) {
+              return TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, "/chatInfo");
+                },
+                child: const Icon(
+                  Icons.drive_file_rename_outline_rounded,
+                  color: Colors.white,
+                ),
+              );
+            } else {
+              return Container();
+            }
+          })
         ],
       ),
       body: StreamBuilder(
@@ -153,7 +112,8 @@ class _ChatState extends State<Chat> {
                   isEqualTo: Provider.of<ChatProvider>(context, listen: false)
                       .selectedChat
                       ?.id)
-              .orderBy("date")
+              .orderBy("date", descending: true)
+              .limit(100)
               .snapshots(),
           builder: (BuildContext context,
               AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
@@ -163,22 +123,53 @@ class _ChatState extends State<Chat> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
-                      child: ListView(
+                      child: ListView.builder(
+                    reverse: true,
                     controller: scrollController,
-                    children: snapshot.data?.docs.map((document) {
-                      MessageModel message =
-                          MessageModel.fromJson(document.data(), document.id);
-                      return getMessageContainer(
-                          auth.currentUser!.email as String,
-                          message,
-                          MediaQuery.of(context).size.width / 2);
-                    }).toList(growable: true) as List<Widget>,
+                    itemCount: snapshot.data?.size,
+                    itemBuilder: (BuildContext context, int index) {
+                      MessageModel message = MessageModel.fromJson(
+                          snapshot.data!.docs[index].data(),
+                          snapshot.data!.docs[index].id);
+                      /*return getMessageContainer(
+                              auth.currentUser!.email as String,
+                              message,
+                              "el coco",
+                              MediaQuery.of(context).size.width / 2);*/
+                      if (!userCache.keys.contains(message.email)) {
+                        Future<String> username = message.getUserName();
+                        return FutureBuilder(
+                            future: username,
+                            builder: (context, username) {
+                              if (username.hasData) {
+                                String? userMemory;
+                                userCache[message.email] =
+                                    username.data as String;
+                                userMemory = userCache[message.email];
+                                return getMessageContainer(
+                                    auth.currentUser!.email as String,
+                                    message,
+                                    userMemory as String,
+                                    MediaQuery.of(context).size.width / 2);
+                              } else {
+                                return Container();
+                              }
+                            });
+                      } else {
+                        return getMessageContainer(
+                            auth.currentUser!.email as String,
+                            message,
+                            userCache[message.email] as String,
+                            MediaQuery.of(context).size.width / 2);
+                      }
+                    },
                   )),
                   Container(
                     padding: const EdgeInsets.all(10),
                     child: TextField(
                       controller: messageCtrl,
                       maxLines: null,
+                      style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                           suffixIcon: TextButton(
                             onPressed: () async {
@@ -188,19 +179,22 @@ class _ChatState extends State<Chat> {
                                 FocusManager.instance.primaryFocus?.unfocus();
                                 await addMessage(messageCtrl.text);
                                 messageCtrl.text = "";
-                                scrollController.jumpTo(
-                                    scrollController.position.maxScrollExtent);
+                                scrollController.jumpTo(0);
                               }
                             },
                             child: Image.asset(
                               "assets/images/send.png",
-                              height: 40,
-                              width: 40,
+                              height: 30,
+                              width: 30,
                             ),
                           ),
+                          focusedBorder: const UnderlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.white, width: 2)),
                           enabledBorder: const OutlineInputBorder(
                               borderSide:
-                                  BorderSide(color: Colors.black, width: 2)),
+                                  BorderSide(color: Colors.white, width: 2)),
+                          labelStyle: const TextStyle(color: Colors.white),
                           labelText: 'Escribe tu mensaje'),
                     ),
                   )

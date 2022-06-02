@@ -1,6 +1,7 @@
-import 'package:chat_bot/chat_list.dart';
-import 'package:chat_bot/register.dart';
-import 'package:chat_bot/userinfo.dart';
+import 'package:chat_bot/Screens/chat_list.dart';
+import 'package:chat_bot/Screens/chatroominfo.dart';
+import 'package:chat_bot/Screens/register.dart';
+import 'package:chat_bot/Screens/userinfo.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,9 +9,9 @@ import 'package:provider/provider.dart';
 import 'Providers/avatar_provider.dart';
 import 'Providers/chat_provider.dart';
 import 'Providers/form_provider.dart';
-import 'chat.dart';
+import 'Screens/chat.dart';
 import 'firebase_options.dart';
-import 'login.dart';
+import 'Screens/login.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +35,7 @@ void main() {
               '/chatList': (context) => const ChatList(),
               '/chat': (context) => const Chat(),
               '/userInfo': (context) => const UserInfo(),
+              '/chatInfo': (context) => const ChatroomInfo(),
             },
           ))));
 }

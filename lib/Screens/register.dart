@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:chat_bot/Providers/form_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -33,10 +31,10 @@ class _RegisterState extends State<Register> {
       if (Provider.of<FormProvider>(context, listen: false).emailInUse) {
         Provider.of<FormProvider>(context, listen: false).changeEmailInUse();
       }
-      //Esta condicion la necesitamos porque si tenemos un campo mal, pero el email
-      //y la contraseña estan bien, entonces se registra el email, cosa que no queremos
       ByteData bytesUser = await rootBundle.load('assets/images/user.png');
       ByteData bytesChatroom = await rootBundle.load('assets/images/logo.png');
+      //Esta condicion la necesitamos porque si tenemos un campo mal, pero el email
+      //y la contraseña estan bien, entonces se registra el email, cosa que no queremos
       if (_formKey.currentState!.validate()) {
         FirebaseAuth auth = FirebaseAuth.instance;
         await auth.createUserWithEmailAndPassword(
@@ -51,6 +49,7 @@ class _RegisterState extends State<Register> {
           "avatar": base64.encode(bytesChatroom.buffer.asUint8List()),
           "name": "Kekobot",
           "isMP": true,
+          "description": "Mensajeria privada con el crupier Kekobot",
           "users": [emailCtrl.text, "kekobot@kekobot.com"]
         });
         return true;
@@ -96,10 +95,20 @@ class _RegisterState extends State<Register> {
                                 }
                                 return null;
                               },
+                              style: const TextStyle(color: Colors.white),
                               decoration: const InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.black, width: 5)),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.white,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                labelStyle: TextStyle(color: Colors.white),
                                 labelText: 'Nickname',
                               ))),
                       Consumer<FormProvider>(
@@ -115,10 +124,20 @@ class _RegisterState extends State<Register> {
                                     }
                                     return null;
                                   },
+                                  style: const TextStyle(color: Colors.white),
                                   decoration: const InputDecoration(
-                                    border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.black, width: 5)),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.white,
+                                        width: 2.0,
+                                      ),
+                                    ),
+                                    labelStyle: TextStyle(color: Colors.white),
                                     labelText: 'Email',
                                   )))),
                       Container(
@@ -131,10 +150,20 @@ class _RegisterState extends State<Register> {
                                 }
                                 return null;
                               },
+                              style: const TextStyle(color: Colors.white),
                               decoration: const InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.black, width: 5)),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.white,
+                                    width: 2.0,
+                                  ),
+                                ),
+                                labelStyle: TextStyle(color: Colors.white),
                                 labelText: 'Confirmar Email',
                               ))),
                       Container(
@@ -155,18 +184,28 @@ class _RegisterState extends State<Register> {
                                         formInfo.registerPasswordVisible,
                                     enableSuggestions: false,
                                     autocorrect: false,
+                                    style: const TextStyle(color: Colors.white),
                                     decoration: InputDecoration(
-                                        border: const OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.black, width: 5)),
+                                        focusedBorder: const OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        enabledBorder: const OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.white,
+                                            width: 2.0,
+                                          ),
+                                        ),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.white),
                                         labelText: 'Contraseña',
                                         suffixIcon: IconButton(
                                           icon: Icon(
                                             !formInfo.registerPasswordVisible
                                                 ? Icons.visibility
                                                 : Icons.visibility_off,
-                                            color: Theme.of(context)
-                                                .primaryColorDark,
+                                            color: Colors.white,
                                           ),
                                           onPressed: () {
                                             formInfo
@@ -190,10 +229,21 @@ class _RegisterState extends State<Register> {
                                         formInfo.registerConfirmPasswordVisible,
                                     enableSuggestions: false,
                                     autocorrect: false,
+                                    style: const TextStyle(color: Colors.white),
                                     decoration: InputDecoration(
-                                        border: const OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.black, width: 5)),
+                                        focusedBorder: const OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        enabledBorder: const OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.white,
+                                            width: 2.0,
+                                          ),
+                                        ),
+                                        labelStyle: const TextStyle(
+                                            color: Colors.white),
                                         labelText: 'Confirmar contraseña',
                                         suffixIcon: IconButton(
                                           icon: Icon(
@@ -201,8 +251,7 @@ class _RegisterState extends State<Register> {
                                                     .registerConfirmPasswordVisible
                                                 ? Icons.visibility
                                                 : Icons.visibility_off,
-                                            color: Theme.of(context)
-                                                .primaryColorDark,
+                                            color: Colors.white,
                                           ),
                                           onPressed: () {
                                             formInfo
@@ -237,6 +286,11 @@ class _RegisterState extends State<Register> {
                                                 content: Text(
                                                     "Se ha efectuado el registro con exito")));
                                         Navigator.pop(context);
+                                        Navigator.pushReplacementNamed(
+                                            context, "/chatList");
+                                        Provider.of<FormProvider>(context,
+                                                listen: false)
+                                            .changeErrorLogin("");
                                       }
                                     },
                                     child: const Text('Registrar'),
@@ -248,11 +302,11 @@ class _RegisterState extends State<Register> {
                                                     horizontal: 50)),
                                         backgroundColor:
                                             MaterialStateProperty.all(
-                                                Colors.blue[900]),
+                                                const Color(0xFF680000)),
                                         shape: MaterialStateProperty.all(
                                             RoundedRectangleBorder(
                                                 side: const BorderSide(
-                                                    color: Color(0xFF000000),
+                                                    color: Color(0xFFFFFFFF),
                                                     width: 1,
                                                     style: BorderStyle.solid),
                                                 borderRadius:

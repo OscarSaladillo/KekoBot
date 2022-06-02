@@ -23,17 +23,8 @@ class _UserInfoState extends State<UserInfo> {
   FirebaseAuth auth = FirebaseAuth.instance;
   TextEditingController usernameCtrl = TextEditingController();
   TextEditingController descriptionCtrl = TextEditingController();
-  TextEditingController nacionalityCtrl = TextEditingController();
   String? avatar, base64Avatar;
   ImageProvider? image;
-  String? userColor;
-  String emailError = "Debe ser un email valido";
-  List<String> colors = [
-    "0xFFFFFFFF",
-    "0xFFFF0000",
-    "0xFFFFF900",
-    "0xFF08E4FC"
-  ];
   QuerySnapshot? querySnap;
   QueryDocumentSnapshot? doc;
   DocumentReference? docRef;
@@ -131,35 +122,55 @@ class _UserInfoState extends State<UserInfo> {
                             children: [
                               TextButton(
                                   onPressed: () async {
+                                    bool rightSize = false;
                                     Uint8List? imageBytes;
                                     FilePickerResult? result = await FilePicker
                                         .platform
                                         .pickFiles(type: FileType.image);
                                     if (result != null) {
                                       if (kIsWeb) {
-                                        imageBytes = result.files.first.bytes
-                                            as Uint8List;
-                                        avatar
-                                            .setImage(MemoryImage(imageBytes));
+                                        if (result.files.first.size < 1040000) {
+                                          imageBytes = result.files.first.bytes
+                                              as Uint8List;
+                                          avatar.setImage(
+                                              MemoryImage(imageBytes));
+                                          rightSize = true;
+                                        }
                                       } else {
-                                        imageBytes = await File(result
-                                                .files.single.path as String)
-                                            .readAsBytes();
-                                        avatar
-                                            .setImage(MemoryImage(imageBytes));
+                                        if (result.files.single.size <
+                                            1040000) {
+                                          imageBytes = await File(result
+                                                  .files.single.path as String)
+                                              .readAsBytes();
+                                          avatar.setImage(
+                                              MemoryImage(imageBytes));
+                                          rightSize = true;
+                                        }
                                       }
-                                      //print(result.files.single.bytes);//convert to bytes
-                                      base64Avatar = base64.encode(imageBytes);
+                                      if (rightSize) {
+                                        base64Avatar =
+                                            base64.encode(imageBytes!);
+                                      } else {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                                content: Text(
+                                                    "La imagen es muy grande, el limite es 1MB")));
+                                      }
                                     }
                                   },
                                   child: CircleAvatar(
-                                    backgroundImage: avatar.image,
-                                    radius: 150,
-                                    child: Image.asset(
-                                      "assets/images/modifyAvatar.png",
-                                      width: 75,
-                                    ),
-                                  )),
+                                      backgroundColor: Colors.white,
+                                      radius: 152,
+                                      child: CircleAvatar(
+                                        backgroundImage: avatar.image,
+                                        backgroundColor:
+                                            const Color(0xFF680000),
+                                        radius: 150,
+                                        child: Image.asset(
+                                          "assets/images/modifyAvatar.png",
+                                          width: 75,
+                                        ),
+                                      ))),
                               SizedBox(
                                   width:
                                       MediaQuery.of(context).size.width / 1.5,
@@ -171,10 +182,22 @@ class _UserInfoState extends State<UserInfo> {
                                         }
                                         return null;
                                       },
+                                      style:
+                                          const TextStyle(color: Colors.white),
                                       decoration: const InputDecoration(
-                                        border: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.black, width: 5)),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.white,
+                                            width: 2.0,
+                                          ),
+                                        ),
+                                        labelStyle:
+                                            TextStyle(color: Colors.white),
                                         labelText: 'Usuario',
                                       ))),
                               SizedBox(
@@ -183,10 +206,22 @@ class _UserInfoState extends State<UserInfo> {
                                   child: TextFormField(
                                       maxLines: 4,
                                       controller: descriptionCtrl,
+                                      style:
+                                          const TextStyle(color: Colors.white),
                                       decoration: const InputDecoration(
-                                        border: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: Colors.black, width: 5)),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.white,
+                                            width: 2.0,
+                                          ),
+                                        ),
+                                        labelStyle:
+                                            TextStyle(color: Colors.white),
                                         labelText: 'Descripcion',
                                       ))),
                               Container(
@@ -203,11 +238,11 @@ class _UserInfoState extends State<UserInfo> {
                                                     horizontal: 50)),
                                         backgroundColor:
                                             MaterialStateProperty.all(
-                                                Colors.blue[900]),
+                                                const Color(0xFF680000)),
                                         shape: MaterialStateProperty.all(
                                             RoundedRectangleBorder(
                                                 side: const BorderSide(
-                                                    color: Color(0xFF000000),
+                                                    color: Color(0xFFFFFFFF),
                                                     width: 1,
                                                     style: BorderStyle.solid),
                                                 borderRadius:

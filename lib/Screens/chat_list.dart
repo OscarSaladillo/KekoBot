@@ -6,8 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'Models/chat_model.dart';
-import 'Providers/avatar_provider.dart';
+import '../Models/chat_model.dart';
+import '../Providers/avatar_provider.dart';
+import '../Providers/form_provider.dart';
 
 class ChatList extends StatefulWidget {
   const ChatList({Key? key}) : super(key: key);
@@ -26,6 +27,9 @@ class _ChatListState extends State<ChatList> {
         centerTitle: true,
         leading: TextButton(
             onPressed: () async {
+              Provider.of<FormProvider>(context, listen: false)
+                  .savedLogin
+                  .logout();
               await auth.signOut();
               Navigator.pushReplacementNamed(context, "/");
             },
@@ -34,6 +38,21 @@ class _ChatListState extends State<ChatList> {
               color: Colors.white,
             )),
         actions: [
+          TextButton(
+            onPressed: () {
+              Provider.of<AvatarProvider>(context, listen: false)
+                  .setAvatar(null);
+              Provider.of<ChatProvider>(context, listen: false)
+                  .changeExistChat();
+              Navigator.pushNamed(context, "/chatInfo");
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white),
+                  borderRadius: BorderRadius.circular(20)),
+              child: const Icon(Icons.add, color: Colors.white),
+            ),
+          ),
           TextButton(
             onPressed: () {
               Provider.of<AvatarProvider>(context, listen: false)
@@ -70,8 +89,18 @@ class _ChatListState extends State<ChatList> {
                     Navigator.pushNamed(context, "/chat");
                   },
                   child: ListTile(
-                    leading: Image.memory(base64.decode(chat.avatar)),
-                    title: Text(chat.name),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: MemoryImage(chat.avatar),
+                    ),
+                    trailing: const Icon(
+                      Icons.arrow_forward_ios_sharp,
+                      color: Colors.white,
+                    ),
+                    title: Text(
+                      chat.name,
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ));
             }).toList() as List<Widget>;
             return ListView.separated(
@@ -79,7 +108,10 @@ class _ChatListState extends State<ChatList> {
                   return listTiles[index];
                 },
                 separatorBuilder: (context, index) {
-                  return const Divider();
+                  return const Divider(
+                    thickness: 2,
+                    color: Colors.white,
+                  );
                 },
                 itemCount: listTiles.length);
           }

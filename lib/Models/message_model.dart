@@ -18,4 +18,13 @@ class MessageModel {
         chatRoom: jsonMap["chatRoom"] as String,
         date: jsonMap["date"] as Timestamp);
   }
+
+  Future<String> getUserName() async {
+    QuerySnapshot? querySnap = await FirebaseFirestore.instance
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .get();
+    return (querySnap.docs[0].data() as Map<dynamic, dynamic>)["username"]
+        as String;
+  }
 }
