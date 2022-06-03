@@ -1,6 +1,7 @@
 import 'package:chat_bot/Screens/chat_list.dart';
 import 'package:chat_bot/Screens/chatroominfo.dart';
 import 'package:chat_bot/Screens/register.dart';
+import 'package:chat_bot/Screens/search_user.dart';
 import 'package:chat_bot/Screens/userinfo.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,7 @@ void main() {
               '/chat': (context) => const Chat(),
               '/userInfo': (context) => const UserInfo(),
               '/chatInfo': (context) => const ChatroomInfo(),
+              '/searchUser': (context) => const SearchUser()
             },
           ))));
 }

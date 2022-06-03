@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:chat_bot/Models/message_model.dart';
@@ -90,14 +89,27 @@ class _ChatState extends State<Chat> {
         actions: [
           Consumer<ChatProvider>(builder: (context, chatInfo, child) {
             if (!chatInfo.selectedChat!.isMP) {
-              return TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, "/chatInfo");
-                },
-                child: const Icon(
-                  Icons.drive_file_rename_outline_rounded,
-                  color: Colors.white,
-                ),
+              return Row(
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/chatInfo");
+                    },
+                    child: const Icon(
+                      Icons.drive_file_rename_outline_rounded,
+                      color: Colors.white,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/searchUser");
+                    },
+                    child: const Icon(
+                      Icons.add,
+                      color: Colors.white,
+                    ),
+                  )
+                ],
               );
             } else {
               return Container();
@@ -131,11 +143,6 @@ class _ChatState extends State<Chat> {
                       MessageModel message = MessageModel.fromJson(
                           snapshot.data!.docs[index].data(),
                           snapshot.data!.docs[index].id);
-                      /*return getMessageContainer(
-                              auth.currentUser!.email as String,
-                              message,
-                              "el coco",
-                              MediaQuery.of(context).size.width / 2);*/
                       if (!userCache.keys.contains(message.email)) {
                         Future<String> username = message.getUserName();
                         return FutureBuilder(
