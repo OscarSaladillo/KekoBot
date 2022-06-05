@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'Providers/avatar_provider.dart';
 import 'Providers/chat_provider.dart';
 import 'Providers/form_provider.dart';
+import 'Providers/search_provider.dart';
 import 'Screens/chat.dart';
 import 'firebase_options.dart';
 import 'Screens/login.dart';
@@ -22,7 +23,8 @@ void main() {
           providers: [
             ChangeNotifierProvider(create: (context) => FormProvider()),
             ChangeNotifierProvider(create: (context) => ChatProvider()),
-            ChangeNotifierProvider(create: (context) => AvatarProvider())
+            ChangeNotifierProvider(create: (context) => AvatarProvider()),
+            ChangeNotifierProvider(create: (context) => SearchProvider())
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,

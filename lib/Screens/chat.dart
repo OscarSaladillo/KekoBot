@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../Extensions/update_selected_chat.dart';
 import '../Widgets/message.dart';
 
 class Chat extends StatefulWidget {
@@ -92,7 +93,8 @@ class _ChatState extends State<Chat> {
               return Row(
                 children: [
                   TextButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      await updateSelectedChat(context);
                       Navigator.pushNamed(context, "/chatInfo");
                     },
                     child: const Icon(
@@ -101,7 +103,8 @@ class _ChatState extends State<Chat> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      await updateSelectedChat(context);
                       Navigator.pushNamed(context, "/searchUser");
                     },
                     child: const Icon(

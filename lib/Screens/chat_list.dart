@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:chat_bot/Providers/chat_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
