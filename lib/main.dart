@@ -12,6 +12,7 @@ import 'Providers/chat_provider.dart';
 import 'Providers/form_provider.dart';
 import 'Providers/search_provider.dart';
 import 'Screens/chat.dart';
+import 'Screens/manage_users.dart';
 import 'firebase_options.dart';
 import 'Screens/login.dart';
 
@@ -39,7 +40,8 @@ void main() {
               '/chat': (context) => const Chat(),
               '/userInfo': (context) => const UserInfo(),
               '/chatInfo': (context) => const ChatroomInfo(),
-              '/searchUser': (context) => const SearchUser()
+              '/searchUser': (context) => const SearchUser(),
+              "/manageUsers": (context) => const ManageUsers(),
             },
           ))));
 }

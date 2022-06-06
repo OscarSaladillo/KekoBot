@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:chat_bot/Models/chat_model.dart';
 import 'package:chat_bot/Models/message_model.dart';
 import 'package:chat_bot/Providers/chat_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,7 +8,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../Extensions/update_selected_chat.dart';
 import '../Widgets/message.dart';
 
 class Chat extends StatefulWidget {
@@ -26,6 +26,18 @@ class _ChatState extends State<Chat> {
   Uint8List? memoryImage;
   ScrollController scrollController = ScrollController();
   Widget? button;
+
+  Future<void> listenSelectedChat() async {
+    FirebaseFirestore.instance
+        .collection('chatroom')
+        .doc(Provider.of<ChatProvider>(context, listen: false).selectedChat!.id)
+        .snapshots()
+        .listen((document) {
+      ChatModel chat = ChatModel.fromJson(document.data()!,
+          Provider.of<ChatProvider>(context, listen: false).selectedChat!.id);
+      Provider.of<ChatProvider>(context, listen: false).setSelectedChat(chat);
+    });
+  }
 
   scrollListener() {
     if (scrollController.offset >= 10) {
@@ -58,6 +70,7 @@ class _ChatState extends State<Chat> {
   @override
   void initState() {
     // TODO: implement initState
+    listenSelectedChat();
     super.initState();
   }
 
@@ -78,10 +91,12 @@ class _ChatState extends State<Chat> {
                   backgroundColor: Colors.transparent,
                   backgroundImage: MemoryImage(chatInfo.selectedChat!.avatar),
                 ),
-                Container(
+                Flexible(
+                    child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Text(chatInfo.selectedChat!.name),
-                )
+                  child: Text(chatInfo.selectedChat!.name,
+                      overflow: TextOverflow.ellipsis),
+                ))
               ],
             );
           },
@@ -91,27 +106,41 @@ class _ChatState extends State<Chat> {
           Consumer<ChatProvider>(builder: (context, chatInfo, child) {
             if (!chatInfo.selectedChat!.isMP) {
               return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextButton(
-                    onPressed: () async {
-                      await updateSelectedChat(context);
-                      Navigator.pushNamed(context, "/chatInfo");
-                    },
-                    child: const Icon(
-                      Icons.drive_file_rename_outline_rounded,
-                      color: Colors.white,
+                  SizedBox(
+                    width: 40,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/chatInfo");
+                      },
+                      child: const Icon(
+                        Icons.drive_file_rename_outline_rounded,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () async {
-                      await updateSelectedChat(context);
-                      Navigator.pushNamed(context, "/searchUser");
-                    },
-                    child: const Icon(
-                      Icons.add,
-                      color: Colors.white,
-                    ),
-                  )
+                  SizedBox(
+                      width: 40,
+                      child: TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, "/manageUsers");
+                          },
+                          child: const Icon(
+                            Icons.group,
+                            color: Colors.white,
+                          ))),
+                  SizedBox(
+                      width: 40,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, "/searchUser");
+                        },
+                        child: const Icon(
+                          Icons.add,
+                          color: Colors.white,
+                        ),
+                      ))
                 ],
               );
             } else {

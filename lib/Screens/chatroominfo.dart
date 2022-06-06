@@ -98,6 +98,8 @@ class _ChatroomInfoState extends State<ChatroomInfo> {
       "avatar": base64Avatar,
       "name": nameCtrl.text,
       "isMP": false,
+      "owner": auth.currentUser!.email,
+      "mods": [auth.currentUser!.email],
       "description": descriptionCtrl.text,
       "users": [auth.currentUser!.email, "kekobot@kekobot.com"]
     });

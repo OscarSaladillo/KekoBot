@@ -24,10 +24,10 @@ class _SearchUserState extends State<SearchUser> {
   }
 
   Future<void> saveUsers() async {
-    DocumentSnapshot<Object?>? querySnap = (await FirebaseFirestore.instance
+    DocumentSnapshot<Object?>? querySnap = await FirebaseFirestore.instance
         .collection('chatroom')
         .doc(Provider.of<ChatProvider>(context, listen: false).selectedChat!.id)
-        .get());
+        .get();
     DocumentReference? docRef = querySnap.reference;
     docRef.update({
       "users": FieldValue.arrayUnion(

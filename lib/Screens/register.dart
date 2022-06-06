@@ -50,6 +50,8 @@ class _RegisterState extends State<Register> {
           "name": "Kekobot",
           "isMP": true,
           "description": "Mensajeria privada con el crupier Kekobot",
+          "owner": emailCtrl.text,
+          "mods": [emailCtrl.text],
           "users": [emailCtrl.text, "kekobot@kekobot.com"]
         });
         return true;
