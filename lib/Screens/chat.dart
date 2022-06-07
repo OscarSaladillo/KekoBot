@@ -33,9 +33,14 @@ class _ChatState extends State<Chat> {
         .doc(Provider.of<ChatProvider>(context, listen: false).selectedChat!.id)
         .snapshots()
         .listen((document) {
-      ChatModel chat = ChatModel.fromJson(document.data()!,
-          Provider.of<ChatProvider>(context, listen: false).selectedChat!.id);
-      Provider.of<ChatProvider>(context, listen: false).setSelectedChat(chat);
+      if (document.data() == null ||
+          !document.data()!["users"].contains(auth.currentUser!.email)) {
+        Navigator.popUntil(context, ModalRoute.withName('/chatList'));
+      } else {
+        ChatModel? chat = ChatModel.fromJson(document.data()!,
+            Provider.of<ChatProvider>(context, listen: false).selectedChat!.id);
+        Provider.of<ChatProvider>(context, listen: false).setSelectedChat(chat);
+      }
     });
   }
 
@@ -112,6 +117,8 @@ class _ChatState extends State<Chat> {
                     width: 40,
                     child: TextButton(
                       onPressed: () {
+                        Provider.of<ChatProvider>(context, listen: false)
+                            .changeExistChat(true);
                         Navigator.pushNamed(context, "/chatInfo");
                       },
                       child: const Icon(

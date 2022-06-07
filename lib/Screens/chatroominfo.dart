@@ -52,6 +52,10 @@ class _ChatroomInfoState extends State<ChatroomInfo> {
     }
   }
 
+  void deleteChat()  {
+     docRef!.delete();
+  }
+
   Future<void> manageChanges() async {
     if (Provider.of<ChatProvider>(context, listen: false).existChat) {
       allowEnter = await saveChanges();
@@ -66,7 +70,6 @@ class _ChatroomInfoState extends State<ChatroomInfo> {
       FocusManager.instance.primaryFocus?.unfocus();
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Se ha creado el chatroom con exito")));
-      Provider.of<ChatProvider>(context, listen: false).changeExistChat();
       Navigator.pop(context);
     }
   }
@@ -86,7 +89,7 @@ class _ChatroomInfoState extends State<ChatroomInfo> {
 
   Future<void> createChatTemplate() async {
     Provider.of<ChatProvider>(context, listen: false)
-        .setImage(const AssetImage("assets/images/logo.png"));
+        .setImage(const AssetImage("assets/images/logo.png"), true);
     Provider.of<ChatProvider>(context, listen: false).setAvatarFromNewChat();
     ByteData bytesChatroom = await rootBundle.load('assets/images/logo.png');
     base64Avatar = base64.encode(bytesChatroom.buffer.asUint8List());
@@ -110,10 +113,11 @@ class _ChatroomInfoState extends State<ChatroomInfo> {
     // TODO: implement initState
     if (Provider.of<ChatProvider>(context, listen: false).existChat) {
       getUserData().then((value) {
-        Provider.of<ChatProvider>(context, listen: false).setImage(MemoryImage(
-            Provider.of<ChatProvider>(context, listen: false)
+        Provider.of<ChatProvider>(context, listen: false).setImage(
+            MemoryImage(Provider.of<ChatProvider>(context, listen: false)
                 .selectedChat!
-                .avatar));
+                .avatar),
+            false);
         base64Avatar = base64.encode(
             Provider.of<ChatProvider>(context, listen: false)
                 .selectedChat!
@@ -168,7 +172,7 @@ class _ChatroomInfoState extends State<ChatroomInfo> {
                                           imageBytes = result.files.first.bytes
                                               as Uint8List;
                                           avatar.setImage(
-                                              MemoryImage(imageBytes));
+                                              MemoryImage(imageBytes), false);
                                           rightSize = true;
                                         }
                                       } else {
@@ -178,7 +182,7 @@ class _ChatroomInfoState extends State<ChatroomInfo> {
                                                   .files.single.path as String)
                                               .readAsBytes();
                                           avatar.setImage(
-                                              MemoryImage(imageBytes));
+                                              MemoryImage(imageBytes), false);
                                           rightSize = true;
                                         }
                                       }
@@ -285,7 +289,35 @@ class _ChatroomInfoState extends State<ChatroomInfo> {
                                                         30.0))))),
                                 margin:
                                     const EdgeInsets.symmetric(vertical: 10),
-                              )
+                              ),
+                              (Provider.of<ChatProvider>(context,listen: false).existChat &&
+                                  Provider.of<ChatProvider>(context,listen: false).selectedChat!.owner == auth.currentUser!.email) ? Container(
+                                child: ElevatedButton(
+                                    onPressed: () {
+                                      deleteChat();
+                                    },
+                                    child: const Text('Eliminar chat'),
+                                    style: ButtonStyle(
+                                        padding:
+                                        MaterialStateProperty.all<EdgeInsets>(
+                                            const EdgeInsets.symmetric(
+                                                vertical: 20,
+                                                horizontal: 50)),
+                                        backgroundColor:
+                                        MaterialStateProperty.all(
+                                            const Color(0xFF680000)),
+                                        shape: MaterialStateProperty.all(
+                                            RoundedRectangleBorder(
+                                                side: const BorderSide(
+                                                    color: Color(0xFFFFFFFF),
+                                                    width: 1,
+                                                    style: BorderStyle.solid),
+                                                borderRadius:
+                                                BorderRadius.circular(
+                                                    30.0))))),
+                                margin:
+                                const EdgeInsets.symmetric(vertical: 10),
+                              ) : Container()
                             ])),
                   ),
                 )

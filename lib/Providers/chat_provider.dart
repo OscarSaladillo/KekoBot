@@ -16,14 +16,16 @@ class ChatProvider with ChangeNotifier {
   ChatModel? get selectedChat => _selectedChat;
   bool get existChat => _existChat;
 
-  changeExistChat() {
-    _existChat = !_existChat;
+  changeExistChat(bool existChat) {
+    _existChat = existChat;
     notifyListeners();
   }
 
-  setImage(ImageProvider? image) {
+  setImage(ImageProvider? image, bool initState) {
     _image = image;
-    notifyListeners();
+    if (!initState) {
+      notifyListeners();
+    }
   }
 
   setSelectedChat(ChatModel? chat) {
@@ -44,6 +46,5 @@ class ChatProvider with ChangeNotifier {
 
   setAvatarFromNewChat() {
     _avatar = Uint8List(1);
-    notifyListeners();
   }
 }

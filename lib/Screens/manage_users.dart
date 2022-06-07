@@ -52,6 +52,21 @@ class _ManageUsersState extends State<ManageUsers> {
     });
   }
 
+  FocusedMenuItem deleteWidget(UserModel user) {
+    return FocusedMenuItem(
+        title: const Text(
+          "Eliminar",
+          style: TextStyle(color: Colors.redAccent),
+        ),
+        trailingIcon: const Icon(
+          Icons.delete,
+          color: Colors.redAccent,
+        ),
+        onPressed: () {
+          deleteUser(user.email);
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,37 +100,35 @@ class _ManageUsersState extends State<ManageUsers> {
                       UserModel user = UserModel.fromJson(document.data());
                       return FocusedMenuHolder(
                           onPressed: () {},
-                          menuItems: [
-                            FocusedMenuItem(
-                                title: Text((chatInfo.selectedChat!.mods
-                                        .contains(user.email))
-                                    ? "Quitar Mod"
-                                    : "Dar mod"),
-                                trailingIcon: Icon((chatInfo.selectedChat!.mods
-                                        .contains(user.email)
-                                    ? Icons.star_border
-                                    : Icons.star)),
-                                onPressed: () {
-                                  if (chatInfo.selectedChat!.mods
-                                      .contains(user.email)) {
-                                    quitAdmin(user.email);
-                                  } else {
-                                    giveAdmin(user.email);
-                                  }
-                                }),
-                            FocusedMenuItem(
-                                title: const Text(
-                                  "Eliminar",
-                                  style: TextStyle(color: Colors.redAccent),
-                                ),
-                                trailingIcon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.redAccent,
-                                ),
-                                onPressed: () {
-                                  deleteUser(user.email);
-                                }),
-                          ],
+                          menuItems: (chatInfo.selectedChat!.owner ==
+                                  auth.currentUser!.email)
+                              ? [
+                                  FocusedMenuItem(
+                                      title: Text((chatInfo.selectedChat!.mods
+                                              .contains(user.email))
+                                          ? "Quitar Mod"
+                                          : "Dar mod"),
+                                      trailingIcon: Icon((chatInfo
+                                              .selectedChat!.mods
+                                              .contains(user.email)
+                                          ? Icons.star_border
+                                          : Icons.star)),
+                                      onPressed: () {
+                                        if (chatInfo.selectedChat!.mods
+                                            .contains(user.email)) {
+                                          quitAdmin(user.email);
+                                        } else {
+                                          giveAdmin(user.email);
+                                        }
+                                      }),
+                                  deleteWidget(user),
+                                ]
+                              : ((chatInfo.selectedChat!.mods
+                                          .contains(auth.currentUser!.email) &&
+                                      !chatInfo.selectedChat!.mods
+                                          .contains(user.email)))
+                                  ? [deleteWidget(user)]
+                                  : [],
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: Colors.transparent,

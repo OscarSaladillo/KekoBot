@@ -41,7 +41,7 @@ class _ChatListState extends State<ChatList> {
               Provider.of<AvatarProvider>(context, listen: false)
                   .setAvatar(null);
               Provider.of<ChatProvider>(context, listen: false)
-                  .changeExistChat();
+                  .changeExistChat(false);
               Navigator.pushNamed(context, "/chatInfo");
             },
             child: Container(
