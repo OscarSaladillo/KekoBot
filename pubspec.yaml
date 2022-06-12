@@ -37,6 +37,8 @@ dependencies:
   file_picker: ^4.6.0
   shared_preferences: ^2.0.15
   focused_menu: ^1.0.5
+  flutter_fortune_wheel: ^1.2.0
+  flutter_slot_machine: ^0.0.1
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -68,6 +70,8 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/slot_images/
+    - assets/blackjack_images/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
@@ -86,6 +90,9 @@ flutter:
       - family: Parisienne
         fonts:
           - asset: assets/fonts/Parisienne-Regular.ttf
+      - family: Casino
+        fonts:
+          - asset: assets/fonts/Casino.ttf
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf

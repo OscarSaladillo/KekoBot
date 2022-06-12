@@ -1,7 +1,11 @@
+import 'package:chat_bot/Providers/blackjack_provider.dart';
+import 'package:chat_bot/Screens/blackjack.dart';
 import 'package:chat_bot/Screens/chat_list.dart';
 import 'package:chat_bot/Screens/chatroominfo.dart';
 import 'package:chat_bot/Screens/register.dart';
+import 'package:chat_bot/Screens/roulette.dart';
 import 'package:chat_bot/Screens/search_user.dart';
+import 'package:chat_bot/Screens/slot_machine.dart';
 import 'package:chat_bot/Screens/userinfo.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +29,8 @@ void main() {
             ChangeNotifierProvider(create: (context) => FormProvider()),
             ChangeNotifierProvider(create: (context) => ChatProvider()),
             ChangeNotifierProvider(create: (context) => AvatarProvider()),
-            ChangeNotifierProvider(create: (context) => SearchProvider())
+            ChangeNotifierProvider(create: (context) => SearchProvider()),
+            ChangeNotifierProvider(create: (context) => BlackJackProvider())
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -42,6 +47,9 @@ void main() {
               '/chatInfo': (context) => const ChatroomInfo(),
               '/searchUser': (context) => const SearchUser(),
               "/manageUsers": (context) => const ManageUsers(),
+              "/slotMachine": (context) => const SlotMachineScreen(),
+              "/blackjack": (context) => const BlackJack(),
+              "/roulette": (context) => const Roulette(),
             },
           ))));
 }

@@ -55,7 +55,7 @@ class _ChatListState extends State<ChatList> {
             onPressed: () {
               Provider.of<AvatarProvider>(context, listen: false)
                   .setAvatar(null);
-              Navigator.pushNamed(context, "/userInfo");
+              Navigator.pushNamed(context, "/roulette");
             },
             child: Container(
               decoration: BoxDecoration(
