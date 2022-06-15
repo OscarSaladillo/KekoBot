@@ -43,6 +43,7 @@ void checkMessage(String word, BuildContext context) {
     "restablecer",
     "limpiar",
     "vaciar",
+    "resetear"
   ];
   List<String> hiWords = [
     "hola",

@@ -230,7 +230,8 @@ class _BlackJackState extends State<BlackJack> {
                                     FocusManager.instance.primaryFocus
                                         ?.unfocus();
                                     isStarted = !handInfo.isFinished;
-                                    if (handInfo.isWinner) {
+                                    if (handInfo.isWinner &&
+                                        handInfo.isFinished) {
                                       addMoney(context, handInfo.bet * 2);
                                     }
                                   } else if (int.parse(betCtrl.text) == 0) {

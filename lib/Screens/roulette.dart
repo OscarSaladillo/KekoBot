@@ -17,6 +17,16 @@ class Roulette extends StatefulWidget {
 class _RouletteState extends State<Roulette> {
   StreamController<int> selected = StreamController<int>();
   bool isRun = false;
+  List<int> rewards = [
+    20,
+    -10,
+    -30,
+    30,
+    -20,
+    50,
+    -40,
+    100,
+  ];
 
   @override
   void dispose() {
@@ -24,19 +34,33 @@ class _RouletteState extends State<Roulette> {
     super.dispose();
   }
 
+  Future<void> spinRoulette() async {
+    if (Provider.of<UserProvider>(context, listen: false).currentUser!.money >=
+        10) {
+      if (!isRun) {
+        addMoney(context, -10);
+        int result = Fortune.randomInt(0, rewards.length);
+        isRun = true;
+        setState(() {
+          selected.add(
+            result,
+          );
+        });
+        await Future.delayed(const Duration(seconds: 5));
+        addMoney(context, rewards[result]);
+        isRun = false;
+      }
+    } else {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text(
+            "No tienes suficiente dinero, te recomiendo que le pidas a keko reiniciar tu cuenta"),
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<int> rewards = [
-      20,
-      -10,
-      -30,
-      30,
-      -20,
-      50,
-      -40,
-      100,
-    ];
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ruleta de la fortuna'),
@@ -82,31 +106,11 @@ class _RouletteState extends State<Roulette> {
                   color: Colors.white, fontFamily: "Casino", fontSize: 24),
             ),
             GestureDetector(
-                onTap: () async {
-                  if (Provider.of<UserProvider>(context, listen: false)
-                          .currentUser!
-                          .money >=
-                      10) {
-                    if (!isRun) {
-                      addMoney(context, -10);
-                      int result = Fortune.randomInt(0, rewards.length);
-                      isRun = true;
-                      setState(() {
-                        selected.add(
-                          result,
-                        );
-                      });
-                      await Future.delayed(const Duration(seconds: 5));
-                      addMoney(context, rewards[result]);
-                      isRun = false;
-                    }
-                  } else {
-                    ScaffoldMessenger.of(context).clearSnackBars();
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text(
-                          "No tienes suficiente dinero, te recomiendo que le pidas a keko reiniciar tu cuenta"),
-                    ));
-                  }
+                onTap: () {
+                  spinRoulette();
+                },
+                onHorizontalDragUpdate: (details) {
+                  spinRoulette();
                 },
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 20),
