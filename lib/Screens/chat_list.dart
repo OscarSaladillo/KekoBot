@@ -1,3 +1,5 @@
+import 'package:chat_bot/Providers/user_provider.dart';
+import 'package:chat_bot/Providers/chatbot_provider.dart';
 import 'package:chat_bot/Providers/chat_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../Models/chat_model.dart';
+import '../Models/user_model.dart';
 import '../Providers/avatar_provider.dart';
 import '../Providers/form_provider.dart';
 
@@ -17,6 +20,28 @@ class ChatList extends StatefulWidget {
 
 class _ChatListState extends State<ChatList> {
   FirebaseAuth auth = FirebaseAuth.instance;
+
+  Future<void> listenUser() async {
+    FirebaseFirestore.instance
+        .collection('users')
+        .where('email', isEqualTo: auth.currentUser!.email)
+        .snapshots()
+        .listen((document) {
+      if (mounted) {
+        UserModel user =
+            UserModel.fromJson(document.docs[0].data(), document.docs[0].id);
+        Provider.of<UserProvider>(context, listen: false).setUser(user);
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    listenUser();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +80,7 @@ class _ChatListState extends State<ChatList> {
             onPressed: () {
               Provider.of<AvatarProvider>(context, listen: false)
                   .setAvatar(null);
-              Navigator.pushNamed(context, "/roulette");
+              Navigator.pushNamed(context, "/userInfo");
             },
             child: Container(
               decoration: BoxDecoration(
@@ -84,6 +109,8 @@ class _ChatListState extends State<ChatList> {
                   onPressed: () {
                     Provider.of<ChatProvider>(context, listen: false)
                         .setSelectedChat(chat);
+                    Provider.of<ChatBotProvider>(context, listen: false)
+                        .setWidget(Container(), true);
                     Navigator.pushNamed(context, "/chat");
                   },
                   child: ListTile(

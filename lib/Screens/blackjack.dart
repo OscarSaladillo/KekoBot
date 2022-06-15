@@ -1,10 +1,13 @@
 import 'dart:math';
 
 import 'package:chat_bot/Providers/blackjack_provider.dart';
+import 'package:chat_bot/Utils/manage_money.dart';
 import 'package:chat_bot/Widgets/card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
+import '../Providers/user_provider.dart';
 
 class BlackJack extends StatefulWidget {
   const BlackJack({Key? key}) : super(key: key);
@@ -25,8 +28,17 @@ class _BlackJackState extends State<BlackJack> {
 
   void checkConditions() {
     if (!isStarted) {
-      isStarted = !isStarted;
-      Provider.of<BlackJackProvider>(context, listen: false).startMatch();
+      if (Provider.of<UserProvider>(context, listen: false)
+              .currentUser!
+              .money >=
+          int.parse(betCtrl.text)) {
+        isStarted = !isStarted;
+        addMoney(context, int.parse(betCtrl.text) * -1);
+        Provider.of<BlackJackProvider>(context, listen: false).startMatch();
+      } else {
+        showSnackBar(
+            "No tienes el dinero suficiente, baja la apuesta o pide a keko reiniciar tu cuenta");
+      }
     } else {
       showSnackBar(
           "Ya empezaste la partida. Acaba la partida o retirate para empezar otra");
@@ -43,10 +55,25 @@ class _BlackJackState extends State<BlackJack> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("BlackJack"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("BlackJack"), actions: [
+        Consumer<UserProvider>(
+          builder: (context, userInfo, child) => Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                userInfo.currentUser!.money.toString(),
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 5),
+                child: const Icon(Icons.monetization_on_outlined),
+              )
+            ],
+          ),
+        )
+      ]),
       body: SingleChildScrollView(
         child: SizedBox(
           height: max(600, MediaQuery.of(context).size.height - 110),
@@ -90,6 +117,9 @@ class _BlackJackState extends State<BlackJack> {
                                 if (isStarted) {
                                   handInfo.addToPlayerHand();
                                   isStarted = !handInfo.isFinished;
+                                  if (handInfo.isWinner) {
+                                    addMoney(context, handInfo.bet * 2);
+                                  }
                                 } else {
                                   showSnackBar(
                                       "Debes apostar y empezar la partida");
@@ -122,6 +152,12 @@ class _BlackJackState extends State<BlackJack> {
                                 } else {
                                   handInfo.addToBotHand(true);
                                   isStarted = !isStarted;
+                                  if (handInfo.isWinner) {
+                                    addMoney(context, handInfo.bet * 2);
+                                  } else if (handInfo.playerState ==
+                                      " (Empate)") {
+                                    addMoney(context, handInfo.bet);
+                                  }
                                 }
                               },
                               child: const Text(
@@ -187,12 +223,18 @@ class _BlackJackState extends State<BlackJack> {
                           decoration: InputDecoration(
                               suffixIcon: TextButton(
                                 onPressed: () {
-                                  if (betCtrl.text.isNotEmpty) {
+                                  if (betCtrl.text.isNotEmpty &&
+                                      int.parse(betCtrl.text) != 0) {
                                     handInfo.setBet(betCtrl.text);
                                     checkConditions();
                                     FocusManager.instance.primaryFocus
                                         ?.unfocus();
                                     isStarted = !handInfo.isFinished;
+                                    if (handInfo.isWinner) {
+                                      addMoney(context, handInfo.bet * 2);
+                                    }
+                                  } else if (int.parse(betCtrl.text) == 0) {
+                                    showSnackBar("El blackjack no es gratis");
                                   } else {
                                     showSnackBar("Debes apostar una cantidad");
                                   }

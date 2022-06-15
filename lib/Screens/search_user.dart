@@ -123,8 +123,8 @@ class _SearchUserState extends State<SearchUser> {
                                           .users
                                           .contains(user["email"]))
                                   .map((document) {
-                                UserModel user =
-                                    UserModel.fromJson(document.data());
+                                UserModel user = UserModel.fromJson(
+                                    document.data(), document.id);
                                 return TextButton(
                                     onPressed: () {
                                       if (searchInfo.selectedUsers

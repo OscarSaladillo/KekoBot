@@ -1,7 +1,10 @@
 import 'dart:math';
 
+import 'package:chat_bot/Providers/user_provider.dart';
+import 'package:chat_bot/Utils/manage_money.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slot_machine/slot_machine.dart';
+import 'package:provider/provider.dart';
 
 class SlotMachineScreen extends StatefulWidget {
   const SlotMachineScreen({Key? key}) : super(key: key);
@@ -12,12 +15,15 @@ class SlotMachineScreen extends StatefulWidget {
 
 class _SlotMachineScreenState extends State<SlotMachineScreen> {
   late SlotMachineController _controller;
-  bool isRun = false;
+  bool isRun = false, init = true;
   List<int> rewards = [3, 10, 5, 20, 50, 25, 10, 5, 100];
 
   @override
   void initState() {
     super.initState();
+    /*WidgetsBinding.instance?.addPostFrameCallback((_) {
+      setState(() {});
+    });*/
   }
 
   void onButtonTap({required int index}) {
@@ -26,9 +32,21 @@ class _SlotMachineScreenState extends State<SlotMachineScreen> {
 
   void onStart() {
     if (!isRun) {
-      isRun = !isRun;
-      final index = Random().nextInt(90);
-      _controller.start(hitRollItemIndex: index < 9 ? index : null);
+      if (Provider.of<UserProvider>(context, listen: false)
+              .currentUser!
+              .money >=
+          1) {
+        isRun = !isRun;
+        addMoney(context, -1);
+        final index = Random().nextInt(90);
+        _controller.start(hitRollItemIndex: index < 9 ? index : null);
+      } else {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              "No tienes suficiente dinero, te recomiendo que le pidas a keko reiniciar tu cuenta"),
+        ));
+      }
     }
   }
 
@@ -38,11 +56,37 @@ class _SlotMachineScreenState extends State<SlotMachineScreen> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      if (init) {
+        init = !init;
+        setState(() {});
+        final index = Random().nextInt(90);
+        _controller.start(hitRollItemIndex: index < 9 ? index : null);
+        onButtonTap(index: 0);
+        onButtonTap(index: 1);
+        onButtonTap(index: 2);
+      }
+    });
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Maquina Tragaperras"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("Tragaperras"), actions: [
+        Consumer<UserProvider>(
+          builder: (context, userInfo, child) => Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                userInfo.currentUser!.money.toString(),
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 5),
+                child: const Icon(Icons.monetization_on_outlined),
+              )
+            ],
+          ),
+        )
+      ]),
       body: Container(
         decoration: const BoxDecoration(
             image: DecorationImage(
@@ -57,6 +101,9 @@ class _SlotMachineScreenState extends State<SlotMachineScreen> {
                 width: 200,
               ),
               SlotMachine(
+                onCreated: (controller) {
+                  _controller = controller;
+                },
                 multiplyNumberOfSlotItems: 10,
                 rollItems: [
                   RollItem(
@@ -124,16 +171,11 @@ class _SlotMachineScreenState extends State<SlotMachineScreen> {
                               border: Border.all(width: 2)),
                           child: Image.asset("assets/slot_images/seven.png"))),
                 ],
-                onCreated: (controller) {
-                  _controller = controller;
-                },
                 onFinished: (resultIndexes) {
-                  print(resultIndexes);
-                  print(checkResult(resultIndexes));
                   if (checkResult(resultIndexes)) {
-                    print(rewards[resultIndexes[0]]);
+                    addMoney(context, rewards[resultIndexes[0]]);
                   }
-                  isRun = !isRun;
+                  isRun = false;
                 },
               ),
               Padding(

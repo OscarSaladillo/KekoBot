@@ -3,11 +3,15 @@ import 'dart:typed_data';
 import 'package:chat_bot/Models/chat_model.dart';
 import 'package:chat_bot/Models/message_model.dart';
 import 'package:chat_bot/Providers/chat_provider.dart';
+import 'package:chat_bot/Widgets/chatbot_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../ChatBot/check_message.dart';
+import '../Providers/chatbot_provider.dart';
+import '../Utils/add_message.dart';
 import '../Widgets/message.dart';
 
 class Chat extends StatefulWidget {
@@ -60,16 +64,6 @@ class _ChatState extends State<Chat> {
         button = null;
       });
     }
-  }
-
-  Future<void> addMessage(String text) async {
-    FirebaseFirestore.instance.collection("messages").add({
-      "text": text,
-      "date": DateTime.now(),
-      "email": auth.currentUser!.email,
-      "chatRoom":
-          Provider.of<ChatProvider>(context, listen: false).selectedChat?.id
-    });
   }
 
   @override
@@ -147,11 +141,12 @@ class _ChatState extends State<Chat> {
                           Icons.add,
                           color: Colors.white,
                         ),
-                      ))
+                      )),
+                  chatBotButton(context)
                 ],
               );
             } else {
-              return Container();
+              return chatBotButton(context);
             }
           })
         ],
@@ -196,7 +191,7 @@ class _ChatState extends State<Chat> {
                                     auth.currentUser!.email as String,
                                     message,
                                     userMemory as String,
-                                    MediaQuery.of(context).size.width / 2);
+                                    MediaQuery.of(context).size.width / 1.2);
                               } else {
                                 return Container();
                               }
@@ -206,10 +201,13 @@ class _ChatState extends State<Chat> {
                             auth.currentUser!.email as String,
                             message,
                             userCache[message.email] as String,
-                            MediaQuery.of(context).size.width / 2);
+                            MediaQuery.of(context).size.width / 1.2);
                       }
                     },
                   )),
+                  Consumer<ChatBotProvider>(
+                    builder: (context, widget, child) => widget.assistantWidget,
+                  ),
                   Container(
                     padding: const EdgeInsets.all(10),
                     child: TextField(
@@ -223,7 +221,19 @@ class _ChatState extends State<Chat> {
                                   //El limite de caracteres de Whatsapp ;)
                                   messageCtrl.text.length < 65536) {
                                 FocusManager.instance.primaryFocus?.unfocus();
-                                await addMessage(messageCtrl.text);
+                                await addMessage(
+                                    context,
+                                    auth.currentUser!.email as String,
+                                    messageCtrl.text);
+                                if (Provider.of<ChatProvider>(context,
+                                            listen: false)
+                                        .selectedChat!
+                                        .isMP ||
+                                    messageCtrl.text
+                                        .toLowerCase()
+                                        .contains("keko")) {
+                                  checkMessage(messageCtrl.text, context);
+                                }
                                 messageCtrl.text = "";
                                 scrollController.jumpTo(0);
                               }

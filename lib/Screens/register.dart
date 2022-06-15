@@ -43,7 +43,8 @@ class _RegisterState extends State<Register> {
           "avatar": base64.encode(bytesUser.buffer.asUint8List()),
           "email": email,
           "description": "",
-          "username": usernameCtrl.text
+          "username": usernameCtrl.text,
+          "money": 500,
         });
         FirebaseFirestore.instance.collection("chatroom").add({
           "avatar": base64.encode(bytesChatroom.buffer.asUint8List()),

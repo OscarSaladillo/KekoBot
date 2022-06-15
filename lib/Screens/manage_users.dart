@@ -97,7 +97,8 @@ class _ManageUsersState extends State<ManageUsers> {
                                 .users
                                 .contains(user["email"]))
                         .map((document) {
-                      UserModel user = UserModel.fromJson(document.data());
+                      UserModel user =
+                          UserModel.fromJson(document.data(), document.id);
                       return FocusedMenuHolder(
                           onPressed: () {},
                           menuItems: (chatInfo.selectedChat!.owner ==

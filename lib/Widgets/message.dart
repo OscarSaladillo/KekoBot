@@ -10,8 +10,8 @@ Container getMessageContainer(
             ? Alignment.centerRight
             : Alignment.centerLeft,
         child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-            width: width,
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+            constraints: BoxConstraints(maxWidth: width),
             decoration: BoxDecoration(
                 color: (currentEmail == message.email)
                     ? const Color(0xFF680000)
@@ -22,7 +22,9 @@ Container getMessageContainer(
               children: [
                 Text(username,
                     style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white)),
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white)),
                 Text(
                   message.text,
                   style: const TextStyle(fontSize: 20, color: Colors.white),

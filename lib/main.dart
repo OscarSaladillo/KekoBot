@@ -1,4 +1,5 @@
 import 'package:chat_bot/Providers/blackjack_provider.dart';
+import 'package:chat_bot/Providers/chatbot_provider.dart';
 import 'package:chat_bot/Screens/blackjack.dart';
 import 'package:chat_bot/Screens/chat_list.dart';
 import 'package:chat_bot/Screens/chatroominfo.dart';
@@ -15,6 +16,7 @@ import 'Providers/avatar_provider.dart';
 import 'Providers/chat_provider.dart';
 import 'Providers/form_provider.dart';
 import 'Providers/search_provider.dart';
+import 'Providers/user_provider.dart';
 import 'Screens/chat.dart';
 import 'Screens/manage_users.dart';
 import 'firebase_options.dart';
@@ -30,7 +32,9 @@ void main() {
             ChangeNotifierProvider(create: (context) => ChatProvider()),
             ChangeNotifierProvider(create: (context) => AvatarProvider()),
             ChangeNotifierProvider(create: (context) => SearchProvider()),
-            ChangeNotifierProvider(create: (context) => BlackJackProvider())
+            ChangeNotifierProvider(create: (context) => BlackJackProvider()),
+            ChangeNotifierProvider(create: (context) => ChatBotProvider()),
+            ChangeNotifierProvider(create: (context) => UserProvider()),
           ],
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
