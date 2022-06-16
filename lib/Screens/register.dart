@@ -176,9 +176,7 @@ class _RegisterState extends State<Register> {
                                 TextFormField(
                                     controller: passwordCtrl,
                                     validator: (password) {
-                                      if (password!.length > 10) {
-                                        return 'Máximo 10 caracteres';
-                                      } else if (password.length < 3) {
+                                      if (password!.length < 3) {
                                         return 'Mínimo 3 caracteres';
                                       }
                                       return null;

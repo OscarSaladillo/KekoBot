@@ -16,6 +16,7 @@ void checkMessage(String word, BuildContext context) {
     "dame",
     "juego",
     "echar",
+    "probar"
   ];
   List<String> infoWords = [
     "Como",
