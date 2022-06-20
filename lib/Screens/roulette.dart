@@ -115,7 +115,10 @@ class _RouletteState extends State<Roulette> {
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 20),
                   width: MediaQuery.of(context).size.width - 50,
-                  height: MediaQuery.of(context).size.width - 50,
+                  height: (MediaQuery.of(context).size.width >
+                          MediaQuery.of(context).size.height)
+                      ? 300
+                      : MediaQuery.of(context).size.width - 50,
                   child: FortuneWheel(
                     indicators: const [
                       FortuneIndicator(
@@ -129,7 +132,10 @@ class _RouletteState extends State<Roulette> {
                     items: [
                       for (int i = 0; i < rewards.length; i++)
                         FortuneItem(
-                            child: Text(rewards[i].toString()),
+                            child: Text(
+                              rewards[i].toString(),
+                              style: TextStyle(color: Colors.white),
+                            ),
                             style: FortuneItemStyle(
                                 color: (i % 2 == 0)
                                     ? Colors.black

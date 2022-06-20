@@ -4,12 +4,12 @@ import '../Utils/add_message.dart';
 
 Future<void> sendRouletteInfo(BuildContext context) async {
   await addMessage(context, "kekobot@kekobot.com",
-      "La ruleta o tambien llamado rueda de la fortuna la apuesta es gratis y puedes ganar un gran premio o perderlo");
+      "La ruleta o tambien llamado rueda de la fortuna la apuesta es de 10 fichas y puedes ganar un gran premio o perderlo");
 }
 
 Future<void> sendSlotMachineInfo(BuildContext context) async {
   await addMessage(context, "kekobot@kekobot.com",
-      "Son máquinas de juegos de azar donde se apuesta 1 euro para ganar un premio");
+      "Son máquinas de juegos de azar donde se apuesta 1 ficha para ganar un premio");
 }
 
 Future<void> sendBlackJackInfo(BuildContext context) async {

@@ -36,7 +36,9 @@ void checkMessage(String word, BuildContext context) {
     "mirar",
     "cantidad",
     "cuanta",
-    "cuanto"
+    "cuanto",
+    "muestra",
+    "mostrar"
   ];
   List<String> resetMoneyWords = [
     "reiniciar",

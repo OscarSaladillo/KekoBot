@@ -14,6 +14,7 @@ Widget getGameButtons(BuildContext context) {
     color: Colors.white,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -47,6 +48,7 @@ Widget getInfoButtons(BuildContext context) {
     color: Colors.white,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -90,6 +92,7 @@ Widget getOptionButtons(BuildContext context) {
     color: Colors.white,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,

@@ -21,9 +21,6 @@ class _SlotMachineScreenState extends State<SlotMachineScreen> {
   @override
   void initState() {
     super.initState();
-    /*WidgetsBinding.instance?.addPostFrameCallback((_) {
-      setState(() {});
-    });*/
   }
 
   void onButtonTap({required int index}) {

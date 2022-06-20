@@ -73,6 +73,9 @@ class _SearchUserState extends State<SearchUser> {
               child: TextField(
                 controller: nameCtrl,
                 maxLines: null,
+                onChanged: (message) {
+                  searchUsers();
+                },
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                     suffixIcon: TextButton(

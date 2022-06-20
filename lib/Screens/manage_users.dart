@@ -102,11 +102,15 @@ class _ManageUsersState extends State<ManageUsers> {
                       return FocusedMenuHolder(
                           onPressed: () {},
                           menuItems: (chatInfo.selectedChat!.owner ==
-                                  auth.currentUser!.email)
+                                      auth.currentUser!.email &&
+                                  user.email != chatInfo.selectedChat!.owner &&
+                                  user.email != auth.currentUser!.email)
                               ? [
                                   FocusedMenuItem(
                                       title: Text((chatInfo.selectedChat!.mods
-                                              .contains(user.email))
+                                                  .contains(user.email) &&
+                                              user.email !=
+                                                  chatInfo.selectedChat!.owner)
                                           ? "Quitar Mod"
                                           : "Dar mod"),
                                       trailingIcon: Icon((chatInfo
@@ -124,10 +128,12 @@ class _ManageUsersState extends State<ManageUsers> {
                                       }),
                                   deleteWidget(user),
                                 ]
-                              : ((chatInfo.selectedChat!.mods
-                                          .contains(auth.currentUser!.email) &&
-                                      !chatInfo.selectedChat!.mods
-                                          .contains(user.email)))
+                              : ((chatInfo.selectedChat!.mods.contains(
+                                              auth.currentUser!.email) &&
+                                          !chatInfo.selectedChat!.mods
+                                              .contains(user.email)) &&
+                                      user.email !=
+                                          chatInfo.selectedChat!.owner)
                                   ? [deleteWidget(user)]
                                   : [],
                           child: ListTile(

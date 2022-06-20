@@ -117,7 +117,8 @@ class _BlackJackState extends State<BlackJack> {
                                 if (isStarted) {
                                   handInfo.addToPlayerHand();
                                   isStarted = !handInfo.isFinished;
-                                  if (handInfo.isWinner) {
+                                  if (handInfo.isWinner &&
+                                      handInfo.isFinished) {
                                     addMoney(context, handInfo.bet * 2);
                                   }
                                 } else {

@@ -133,7 +133,7 @@ class _ChatroomInfoState extends State<ChatroomInfo> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Perfil"),
+          title: const Text("Perfil del grupo"),
           actions: [
             TextButton(
               onPressed: () async {

@@ -75,7 +75,7 @@ Future<void> resetMoney(BuildContext context, String word) async {
                         Provider.of<UserProvider>(context, listen: false)
                                 .currentUser!
                                 .name +
-                            " Su cuenta ha sido reseteada con exito");
+                            " su cuenta ha sido reseteada con exito");
                     resetAccount(context);
                     Navigator.pop(context);
                   },
