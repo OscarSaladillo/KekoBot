@@ -1,0 +1,455 @@
+@startuml
+set namespaceSeparator ::
+
+class "chat_bot::firebase_options.dart::DefaultFirebaseOptions" {
+  {static} +FirebaseOptions web
+  {static} +FirebaseOptions android
+  {static} +FirebaseOptions ios
+  {static} +FirebaseOptions currentPlatform
+}
+
+"chat_bot::firebase_options.dart::DefaultFirebaseOptions" o-- "firebase_core_platform_interface::firebase_core_platform_interface.dart::FirebaseOptions"
+
+class "chat_bot::Models::card_model.dart::CardModel" {
+  +String symbol
+  +int number
+  +Color color
+  +String translateNumber()
+  +int getValue()
+}
+
+"chat_bot::Models::card_model.dart::CardModel" o-- "dart::ui::Color"
+
+class "chat_bot::Models::chat_model.dart::ChatModel" {
+  +String id
+  +String name
+  +String description
+  +String owner
+  +Uint8List avatar
+  +bool isMP
+  +List<dynamic> users
+  +List<dynamic> mods
+}
+
+"chat_bot::Models::chat_model.dart::ChatModel" o-- "dart::typed_data::Uint8List"
+
+class "chat_bot::Models::message_model.dart::MessageModel" {
+  +String id
+  +String email
+  +String text
+  +String chatRoom
+  +Timestamp date
+  +Future<String> getUserName()
+}
+
+"chat_bot::Models::message_model.dart::MessageModel" o-- "cloud_firestore_platform_interface::src::timestamp.dart::Timestamp"
+
+class "chat_bot::Models::user_model.dart::UserModel" {
+  +String name
+  +String description
+  +String email
+  +String id
+  +Uint8List avatar
+  +int money
+}
+
+"chat_bot::Models::user_model.dart::UserModel" o-- "dart::typed_data::Uint8List"
+
+class "chat_bot::Providers::avatar_provider.dart::AvatarProvider" {
+  -ImageProvider<Object>? _image
+  -String? _avatar
+  +ImageProvider<Object>? image
+  +String? avatar
+  +dynamic setImage()
+  +dynamic setAvatar()
+}
+
+"chat_bot::Providers::avatar_provider.dart::AvatarProvider" o-- "flutter::src::painting::image_provider.dart::ImageProvider<Object>"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "chat_bot::Providers::avatar_provider.dart::AvatarProvider"
+
+class "chat_bot::Providers::blackjack_provider.dart::BlackJackProvider" {
+  +List<CardModel> deck
+  +List<CardModel> playerHand
+  +List<CardModel> botHand
+  +int playerValue
+  +int botValue
+  +int playerHasA
+  +int botHasA
+  -bool _isFinished
+  -bool _isWinner
+  -String _playerState
+  +int bet
+  +bool isFinished
+  +bool isWinner
+  +String playerState
+  +dynamic setBet()
+  +dynamic addToPlayerHand()
+  +bool checkPlayerHand()
+  +dynamic addToBotHand()
+  +bool checkBotHand()
+  +void checkWinner()
+  +void giveUp()
+  +void startMatch()
+  +dynamic resetHands()
+}
+
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "chat_bot::Providers::blackjack_provider.dart::BlackJackProvider"
+
+class "chat_bot::Providers::chatbot_provider.dart::ChatBotProvider" {
+  -Widget _assistantWidget
+  -bool _isContainer
+  +Widget assistantWidget
+  +bool isContainer
+  +void setWidget()
+}
+
+"chat_bot::Providers::chatbot_provider.dart::ChatBotProvider" o-- "flutter::src::widgets::framework.dart::Widget"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "chat_bot::Providers::chatbot_provider.dart::ChatBotProvider"
+
+class "chat_bot::Providers::chat_provider.dart::ChatProvider" {
+  -ChatModel? _selectedChat
+  -ImageProvider<Object>? _image
+  -Uint8List? _avatar
+  -bool _existChat
+  +ImageProvider<Object>? image
+  +Uint8List? avatar
+  +ChatModel? selectedChat
+  +bool existChat
+  +dynamic changeExistChat()
+  +dynamic setImage()
+  +dynamic setSelectedChat()
+  +dynamic modifySelectedChat()
+  +dynamic setAvatar()
+  +dynamic setAvatarFromNewChat()
+}
+
+"chat_bot::Providers::chat_provider.dart::ChatProvider" o-- "chat_bot::Models::chat_model.dart::ChatModel"
+"chat_bot::Providers::chat_provider.dart::ChatProvider" o-- "flutter::src::painting::image_provider.dart::ImageProvider<Object>"
+"chat_bot::Providers::chat_provider.dart::ChatProvider" o-- "dart::typed_data::Uint8List"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "chat_bot::Providers::chat_provider.dart::ChatProvider"
+
+class "chat_bot::Providers::form_provider.dart::FormProvider" {
+  -bool _loginPasswordVisible
+  -bool _registerPasswordVisible
+  -bool _registerConfirmPasswordVisible
+  -bool _emailInUse
+  -bool _rememberUser
+  -String _errorLogin
+  -String _errorRegister
+  -RememberUser _savedLogin
+  +bool loginPasswordVisible
+  +bool registerPasswordVisible
+  +bool registerConfirmPasswordVisible
+  +bool emailInUse
+  +bool rememberUser
+  +String errorLogin
+  +String errorRegister
+  +RememberUser savedLogin
+  +dynamic changeRememberUser()
+  +dynamic changeLoginPasswordVisible()
+  +dynamic changeRegisterPasswordVisible()
+  +dynamic changeRegisterConfirmPasswordVisible()
+  +dynamic changeEmailInUse()
+  +dynamic changeErrorLogin()
+  +dynamic changeErrorRegister()
+}
+
+"chat_bot::Providers::form_provider.dart::FormProvider" o-- "chat_bot::SharedPreferences::remember_user.dart::RememberUser"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "chat_bot::Providers::form_provider.dart::FormProvider"
+
+class "chat_bot::Providers::search_provider.dart::SearchProvider" {
+  -String _input
+  -int _usedHeight
+  -List<UserModel> _selectedUsers
+  +String input
+  +int usedHeight
+  +List<UserModel> selectedUsers
+  +void resetAttributes()
+  +void addUser()
+  +void deleteUser()
+  +void incrementHeight()
+  +void changeInput()
+}
+
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "chat_bot::Providers::search_provider.dart::SearchProvider"
+
+class "chat_bot::Providers::user_provider.dart::UserProvider" {
+  -UserModel? _currentUser
+  +UserModel? currentUser
+  +void setUser()
+}
+
+"chat_bot::Providers::user_provider.dart::UserProvider" o-- "chat_bot::Models::user_model.dart::UserModel"
+"flutter::src::foundation::change_notifier.dart::ChangeNotifier" <|-- "chat_bot::Providers::user_provider.dart::UserProvider"
+
+class "chat_bot::Screens::blackjack.dart::BlackJack" {
+  +State<BlackJack> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "chat_bot::Screens::blackjack.dart::BlackJack"
+
+class "chat_bot::Screens::blackjack.dart::_BlackJackState" {
+  +TextEditingController betCtrl
+  +bool isStarted
+  +void initState()
+  +void checkConditions()
+  +void showSnackBar()
+  +Widget build()
+}
+
+"chat_bot::Screens::blackjack.dart::_BlackJackState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "chat_bot::Screens::blackjack.dart::_BlackJackState"
+
+class "chat_bot::Screens::chat.dart::Chat" {
+  +_ChatState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "chat_bot::Screens::chat.dart::Chat"
+
+class "chat_bot::Screens::chat.dart::_ChatState" {
+  +List<Map<String, dynamic>> list
+  +List<String> usersCount
+  +TextEditingController messageCtrl
+  +FirebaseAuth auth
+  +Map<String, String> userCache
+  +Uint8List? memoryImage
+  +ScrollController scrollController
+  +Widget? button
+  +Future<void> listenSelectedChat()
+  +dynamic scrollListener()
+  +void initState()
+  +Widget build()
+}
+
+"chat_bot::Screens::chat.dart::_ChatState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"chat_bot::Screens::chat.dart::_ChatState" o-- "firebase_auth::firebase_auth.dart::FirebaseAuth"
+"chat_bot::Screens::chat.dart::_ChatState" o-- "dart::typed_data::Uint8List"
+"chat_bot::Screens::chat.dart::_ChatState" o-- "flutter::src::widgets::scroll_controller.dart::ScrollController"
+"chat_bot::Screens::chat.dart::_ChatState" o-- "flutter::src::widgets::framework.dart::Widget"
+"flutter::src::widgets::framework.dart::State" <|-- "chat_bot::Screens::chat.dart::_ChatState"
+
+class "chat_bot::Screens::chatroominfo.dart::ChatroomInfo" {
+  +_ChatroomInfoState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "chat_bot::Screens::chatroominfo.dart::ChatroomInfo"
+
+class "chat_bot::Screens::chatroominfo.dart::_ChatroomInfoState" {
+  -GlobalKey<FormState> _formKey
+  +bool allowEnter
+  +FirebaseAuth auth
+  +TextEditingController nameCtrl
+  +TextEditingController descriptionCtrl
+  +String? avatar
+  +String? base64Avatar
+  +ImageProvider<Object>? image
+  +DocumentSnapshot<Object?>? querySnap
+  +QueryDocumentSnapshot<Object?>? doc
+  +DocumentReference<Object?>? docRef
+  +Map<dynamic, dynamic>? docData
+  +Future<bool> saveChanges()
+  +void deleteChat()
+  +Future<void> manageChanges()
+  +Future<void> getUserData()
+  +Future<void> createChatTemplate()
+  +void createChat()
+  +void initState()
+  +Widget build()
+}
+
+"chat_bot::Screens::chatroominfo.dart::_ChatroomInfoState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"chat_bot::Screens::chatroominfo.dart::_ChatroomInfoState" o-- "firebase_auth::firebase_auth.dart::FirebaseAuth"
+"chat_bot::Screens::chatroominfo.dart::_ChatroomInfoState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"chat_bot::Screens::chatroominfo.dart::_ChatroomInfoState" o-- "flutter::src::painting::image_provider.dart::ImageProvider<Object>"
+"chat_bot::Screens::chatroominfo.dart::_ChatroomInfoState" o-- "cloud_firestore::cloud_firestore.dart::DocumentSnapshot<Object>"
+"chat_bot::Screens::chatroominfo.dart::_ChatroomInfoState" o-- "cloud_firestore::cloud_firestore.dart::QueryDocumentSnapshot<Object>"
+"chat_bot::Screens::chatroominfo.dart::_ChatroomInfoState" o-- "cloud_firestore::cloud_firestore.dart::DocumentReference<Object>"
+"flutter::src::widgets::framework.dart::State" <|-- "chat_bot::Screens::chatroominfo.dart::_ChatroomInfoState"
+
+class "chat_bot::Screens::chat_list.dart::ChatList" {
+  +State<ChatList> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "chat_bot::Screens::chat_list.dart::ChatList"
+
+class "chat_bot::Screens::chat_list.dart::_ChatListState" {
+  +FirebaseAuth auth
+  +Future<void> listenUser()
+  +void initState()
+  +Widget build()
+}
+
+"chat_bot::Screens::chat_list.dart::_ChatListState" o-- "firebase_auth::firebase_auth.dart::FirebaseAuth"
+"flutter::src::widgets::framework.dart::State" <|-- "chat_bot::Screens::chat_list.dart::_ChatListState"
+
+class "chat_bot::Screens::login.dart::Login" {
+  +_LoginState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "chat_bot::Screens::login.dart::Login"
+
+class "chat_bot::Screens::login.dart::_LoginState" {
+  -GlobalKey<FormState> _formKey
+  +TextEditingController emailCtrl
+  +TextEditingController passwordCtrl
+  +RememberUser? savedLogin
+  +bool rememberUser
+  +Future<bool> checkLogin()
+  +void initState()
+  +Widget build()
+}
+
+"chat_bot::Screens::login.dart::_LoginState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"chat_bot::Screens::login.dart::_LoginState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"chat_bot::Screens::login.dart::_LoginState" o-- "chat_bot::SharedPreferences::remember_user.dart::RememberUser"
+"flutter::src::widgets::framework.dart::State" <|-- "chat_bot::Screens::login.dart::_LoginState"
+
+class "chat_bot::Screens::manage_users.dart::ManageUsers" {
+  +State<ManageUsers> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "chat_bot::Screens::manage_users.dart::ManageUsers"
+
+class "chat_bot::Screens::manage_users.dart::_ManageUsersState" {
+  +FirebaseAuth auth
+  +Future<void> deleteUser()
+  +Future<void> giveAdmin()
+  +Future<void> quitAdmin()
+  +FocusedMenuItem deleteWidget()
+  +Widget build()
+}
+
+"chat_bot::Screens::manage_users.dart::_ManageUsersState" o-- "firebase_auth::firebase_auth.dart::FirebaseAuth"
+"flutter::src::widgets::framework.dart::State" <|-- "chat_bot::Screens::manage_users.dart::_ManageUsersState"
+
+class "chat_bot::Screens::register.dart::Register" {
+  +_RegisterState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "chat_bot::Screens::register.dart::Register"
+
+class "chat_bot::Screens::register.dart::_RegisterState" {
+  -GlobalKey<FormState> _formKey
+  +bool allowEnter
+  +bool emailInUse
+  +TextEditingController emailCtrl
+  +TextEditingController confirmEmailCtrl
+  +TextEditingController usernameCtrl
+  +TextEditingController passwordCtrl
+  +TextEditingController confirmPasswordCtrl
+  +String emailError
+  +Future<bool> checkEmail()
+  +Widget build()
+}
+
+"chat_bot::Screens::register.dart::_RegisterState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"chat_bot::Screens::register.dart::_RegisterState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::State" <|-- "chat_bot::Screens::register.dart::_RegisterState"
+
+class "chat_bot::Screens::roulette.dart::Roulette" {
+  +_RouletteState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "chat_bot::Screens::roulette.dart::Roulette"
+
+class "chat_bot::Screens::roulette.dart::_RouletteState" {
+  +StreamController<int> selected
+  +bool isRun
+  +List<int> rewards
+  +void dispose()
+  +Future<void> spinRoulette()
+  +Widget build()
+}
+
+"chat_bot::Screens::roulette.dart::_RouletteState" o-- "dart::async::StreamController<int>"
+"flutter::src::widgets::framework.dart::State" <|-- "chat_bot::Screens::roulette.dart::_RouletteState"
+
+class "chat_bot::Screens::search_user.dart::SearchUser" {
+  +State<SearchUser> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "chat_bot::Screens::search_user.dart::SearchUser"
+
+class "chat_bot::Screens::search_user.dart::_SearchUserState" {
+  +TextEditingController nameCtrl
+  +FirebaseAuth auth
+  +void searchUsers()
+  +Future<void> saveUsers()
+  +Widget build()
+}
+
+"chat_bot::Screens::search_user.dart::_SearchUserState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"chat_bot::Screens::search_user.dart::_SearchUserState" o-- "firebase_auth::firebase_auth.dart::FirebaseAuth"
+"flutter::src::widgets::framework.dart::State" <|-- "chat_bot::Screens::search_user.dart::_SearchUserState"
+
+class "chat_bot::Screens::slot_machine.dart::SlotMachineScreen" {
+  +_SlotMachineScreenState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "chat_bot::Screens::slot_machine.dart::SlotMachineScreen"
+
+class "chat_bot::Screens::slot_machine.dart::_SlotMachineScreenState" {
+  -SlotMachineController _controller
+  +bool isRun
+  +bool init
+  +List<int> rewards
+  +void initState()
+  +void onButtonTap()
+  +void onStart()
+  +bool checkResult()
+  +Widget build()
+}
+
+"chat_bot::Screens::slot_machine.dart::_SlotMachineScreenState" o-- "flutter_slot_machine::slot_machine.dart::SlotMachineController"
+"flutter::src::widgets::framework.dart::State" <|-- "chat_bot::Screens::slot_machine.dart::_SlotMachineScreenState"
+
+class "chat_bot::Screens::userinfo.dart::UserInfo" {
+  +_UserInfoState createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "chat_bot::Screens::userinfo.dart::UserInfo"
+
+class "chat_bot::Screens::userinfo.dart::_UserInfoState" {
+  -GlobalKey<FormState> _formKey
+  +bool allowEnter
+  +FirebaseAuth auth
+  +TextEditingController usernameCtrl
+  +TextEditingController descriptionCtrl
+  +String? avatar
+  +String? base64Avatar
+  +ImageProvider<Object>? image
+  +QuerySnapshot<Object?>? querySnap
+  +QueryDocumentSnapshot<Object?>? doc
+  +DocumentReference<Object?>? docRef
+  +Map<dynamic, dynamic>? docData
+  +Future<bool> saveChanges()
+  +Future<void> manageChanges()
+  +Future<void> getUserData()
+  +void initState()
+  +Widget build()
+}
+
+"chat_bot::Screens::userinfo.dart::_UserInfoState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"chat_bot::Screens::userinfo.dart::_UserInfoState" o-- "firebase_auth::firebase_auth.dart::FirebaseAuth"
+"chat_bot::Screens::userinfo.dart::_UserInfoState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"chat_bot::Screens::userinfo.dart::_UserInfoState" o-- "flutter::src::painting::image_provider.dart::ImageProvider<Object>"
+"chat_bot::Screens::userinfo.dart::_UserInfoState" o-- "cloud_firestore::cloud_firestore.dart::QuerySnapshot<Object>"
+"chat_bot::Screens::userinfo.dart::_UserInfoState" o-- "cloud_firestore::cloud_firestore.dart::QueryDocumentSnapshot<Object>"
+"chat_bot::Screens::userinfo.dart::_UserInfoState" o-- "cloud_firestore::cloud_firestore.dart::DocumentReference<Object>"
+"flutter::src::widgets::framework.dart::State" <|-- "chat_bot::Screens::userinfo.dart::_UserInfoState"
+
+class "chat_bot::SharedPreferences::remember_user.dart::RememberUser" {
+  +SharedPreferences? prefs
+  +String? email
+  +String? password
+  +String? getEmail
+  +String? getPassword
+  +Future<String?> initializePreferences()
+  +void savedLogin()
+  +void logout()
+}
+
+"chat_bot::SharedPreferences::remember_user.dart::RememberUser" o-- "shared_preferences::shared_preferences.dart::SharedPreferences"
+
+
+@enduml
